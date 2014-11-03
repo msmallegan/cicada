@@ -55,12 +55,13 @@ def detectPitch(data):
     tmpPitchFile = open(tmpPitchName,'r')
     # takes penultimate line of output as current pitch
     lines = tmpPitchFile.readlines()
-    pitchList = [ float(line.split(' ')[-1]) for line in lines ]
+    pitchList = [ float(line.split()[-1]) for line in lines ]
     pitch = pitchList[-2]
 
     # If I ever registered silence, don't report a pitch.
     # (Avoids noise / partially heard sounds?)
-    if scipy.any(scipy.array(pitchList)[:-1]==0.): pitch = 0.
+    if scipy.any(scipy.array(pitchList)[:-1]==0.):
+        pitch = 0.
 
     # debug
     #print ""
