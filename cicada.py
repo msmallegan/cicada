@@ -29,7 +29,7 @@ def detectPitch(data):
     """
     Returns an estimate of the dominant pitch in Hz
     given PyAudio data.
-    
+
     Requires aubio command-line tool 'aubiopitch'.
     http://aubio.org/
     """
@@ -37,9 +37,9 @@ def detectPitch(data):
     # saves the data to a wave file and then runs
     # 'aubiopitch' on it.
     # This is ultra-clunky.  I am coding on an airplane :)
-    
+
     tmpPrefix = 'detectPitch_tmp'+str(os.getpid())
-    
+
     tmpWaveName = tmpPrefix+'.wav'
     saveWave(data,tmpWaveName)
 
@@ -51,13 +51,13 @@ def detectPitch(data):
     except OSError, e:
         raise Exception, "Problem calling aubiopitch: "+str(e)
     tmpPitchFile.close()
-    
+
     tmpPitchFile = open(tmpPitchName,'r')
     # takes penultimate line of output as current pitch
     lines = tmpPitchFile.readlines()
     pitchList = [ float(line.split(' ')[-1]) for line in lines ]
     pitch = pitchList[-2]
-    
+
     # If I ever registered silence, don't report a pitch.
     # (Avoids noise / partially heard sounds?)
     if scipy.any(scipy.array(pitchList)[:-1]==0.): pitch = 0.
@@ -65,7 +65,7 @@ def detectPitch(data):
     # debug
     #print ""
     #print pitchList
-    
+
     # clean up
     os.remove(tmpPitchName)
     os.remove(tmpWaveName)
@@ -102,20 +102,20 @@ def wire():
     #
     # At the moment it just outputs the audio it hears.
     # Careful for feedback :)
-    
+
     p = pyaudio.PyAudio()
 
     # The callback function is called repeatedly while the audio
     # stream is open.  in_data is the input audio
     def callback(in_data, frame_count, time_info, status):
-        
+
         # Here's where we will analyze the in_data and use it
         # to calculate the out_data.  For now, do something simple.
         out_data = in_data
-        
+
         #pitch = detectPitch(in_data)
         #print pitch
-        
+
         return (out_data, pyaudio.paContinue)
 
     stream = p.open(format=p.get_format_from_width(WIDTH),
@@ -147,7 +147,7 @@ def audioInput(samples=2048):
     #
     # At the moment it just outputs the audio it hears.
     # Careful for feedback :)
-    
+
     p = pyaudio.PyAudio()
 
     stream = p.open(format=p.get_format_from_width(WIDTH),
@@ -171,7 +171,7 @@ def audioInput(samples=2048):
 def mapToInterval(pitch,minPitch=220.,maxPitch=440.):
     """
     Given an arbitrary pitch, find the equivalent note
-    within the given pitch range (which by default spans 
+    within the given pitch range (which by default spans
     one octave).
     """
     log = scipy.log
@@ -188,21 +188,21 @@ def simpleCicada(learningRate=0.5,toneDur=(0.5,1.5),
     """
     If a pitch is heard, change myPitch according to
         myPitch *= (heardPitch/myPitch)**learningRate.
-    
+
     Tone is played for a random time in the range given
     by toneDur (in seconds).
-    
+
     Returns list of heard pitches and list of played pitches
     (in Hz).
     """
     myPitch = initialPitch
     heardPitchList,myPitchList = [],[]
-    
+
     try:
         while True:
             # listen
             heardPitch = detectPitch(audioInput())
-            
+
             # change
             if (heardPitch > minPitchIn) and (heardPitch < maxPitchIn):
                 mappedPitch = mapToInterval(heardPitch,
@@ -211,12 +211,12 @@ def simpleCicada(learningRate=0.5,toneDur=(0.5,1.5),
             else:
                 mappedPitch = 0.
             print "heardPitch = %.1f, mappedPitch = %.1f, myPitch = %.1f"%(heardPitch,mappedPitch,myPitch)
-        
+
             # sing
             dur = toneDur[0] \
                 + (toneDur[1]-toneDur[0])*scipy.random.rand()
             playTone(myPitch,dur)
-            
+
             # log
             heardPitchList.append(heardPitch)
             myPitchList.append(myPitch)
