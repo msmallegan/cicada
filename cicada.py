@@ -55,11 +55,16 @@ def detectPitch(data):
     tmpPitchFile = open(tmpPitchName,'r')
     # takes penultimate line of output as current pitch
     lines = tmpPitchFile.readlines()
-    pitch = float(lines[-2].split(' ')[-1])
+    pitchList = [ float(line.split(' ')[-1]) for line in lines ]
+    pitch = pitchList[-2]
     
+    # If I ever registered silence, don't report a pitch.
+    # (Avoids noise / partially heard sounds?)
+    if scipy.any(scipy.array(pitchList)[:-1]==0.): pitch = 0.
+
     # debug
     #print ""
-    #print lines
+    #print pitchList
     
     # clean up
     os.remove(tmpPitchName)
@@ -163,8 +168,23 @@ def audioInput(samples=2048):
 
     return b''.join(frames)
 
+def mapToInterval(pitch,minPitch=220.,maxPitch=440.):
+    """
+    Given an arbitrary pitch, find the equivalent note
+    within the given pitch range (which by default spans 
+    one octave).
+    """
+    log = scipy.log
+
+    logIntervalRange = log(maxPitch) - log(minPitch)
+    d = (log(pitch)-log(minPitch)) % logIntervalRange
+    mappedPitch = scipy.exp(log(minPitch) + d)
+
+    return mappedPitch
+
 def simpleCicada(learningRate=0.5,toneDur=(0.5,1.5),
-    initialPitch=440.,maxPitch=2000.,minPitch=0.):
+    initialPitch=440.,minPitchIn=0.,maxPitchIn=2000.,
+    minPitchOut=220.,maxPitchOut=440.):
     """
     If a pitch is heard, change myPitch according to
         myPitch *= (heardPitch/myPitch)**learningRate.
@@ -184,9 +204,13 @@ def simpleCicada(learningRate=0.5,toneDur=(0.5,1.5),
             heardPitch = detectPitch(audioInput())
             
             # change
-            if (heardPitch > minPitch) and (heardPitch < maxPitch):
-                myPitch *= (heardPitch/myPitch)**learningRate
-            print "heardPitch = %.1f, myPitch = %.1f"%(heardPitch,myPitch)
+            if (heardPitch > minPitchIn) and (heardPitch < maxPitchIn):
+                mappedPitch = mapToInterval(heardPitch,
+                                minPitchOut,maxPitchOut)
+                myPitch *= (mappedPitch/myPitch)**learningRate
+            else:
+                mappedPitch = 0.
+            print "heardPitch = %.1f, mappedPitch = %.1f, myPitch = %.1f"%(heardPitch,mappedPitch,myPitch)
         
             # sing
             dur = toneDur[0] \
