@@ -3,6 +3,8 @@ cicada
 
 C4 Outreach Project: Signal Consensus
 
+To view a simple model of "cicada" activity: http://nbviewer.ipython.org/github/msmallegan/cicada/blob/master/simple_cicada_model.ipynb
+
 
 Dependencies
 ============
