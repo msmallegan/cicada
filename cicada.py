@@ -10,6 +10,8 @@ import wave
 from subprocess import call
 import os
 import scipy
+import pianoputer
+from scipy.io import wavfile
 
 # Hopefully these will be compatible with most microphone setups
 WIDTH = 2
@@ -25,14 +27,36 @@ def saveWave(data,filename='output.wav'):
     wf.writeframes(data)
     wf.close()
 
-def detectPitch(data):
+def loadWave(filename):
+    fps, sound = wavfile.read(filename)
+    #wf = wave.Wave_read(filename)
+    #sound = wf.readframes(wf.getnframes())
+    # if there is more than one channel, only return first one
+    # (doesn't seem to work at the moment for stereo case...)
+    if len(scipy.shape(sound)) > 1:
+        return sound[:,1]
+    else:
+        return sound
+
+def detectPitch(data,verbose=False):
     """
     Returns an estimate of the dominant pitch in Hz
     given PyAudio data.
 
     Requires aubio command-line tool 'aubiopitch'.
     http://aubio.org/
+    
+    If a long audio sample is given, uses two 
+    "chunks" of 1024 samples in the middle of the
+    sample.
     """
+    # take data from the middle of the sample
+    N = len(data)
+    if N > 2048:
+        middleData = data[N/2-1024:N/2+1024]
+    else:
+        middleData = data
+    
     # 10.30.2014 At the moment, this (inefficiently!)
     # saves the data to a wave file and then runs
     # 'aubiopitch' on it.
@@ -41,7 +65,7 @@ def detectPitch(data):
     tmpPrefix = 'detectPitch_tmp'+str(os.getpid())
 
     tmpWaveName = tmpPrefix+'.wav'
-    saveWave(data,tmpWaveName)
+    saveWave(middleData,tmpWaveName)
 
     tmpPitchName = tmpPrefix+'.txt'
     tmpPitchFile = open(tmpPitchName,'w')
@@ -63,9 +87,8 @@ def detectPitch(data):
     if scipy.any(scipy.array(pitchList)[:-1]==0.):
         pitch = 0.
 
-    # debug
-    #print ""
-    #print pitchList
+    if verbose:
+        print "detectPitch: ",pitchList
 
     # clean up
     os.remove(tmpPitchName)
@@ -89,6 +112,29 @@ def playTone(pitch,time=1):
     chrData = [ chr(int(scipy.floor(d*127.+128.))) \
         for d in floatData ]
     stream.write(b''.join(chrData))
+    stream.stop_stream()
+    stream.close()
+
+    p.terminate()
+
+def playSound(soundArray,originalPitch=1.,newPitch=1.):
+    """
+    Plays input array as a sound, optionally shifting
+    its pitch.
+    """
+    p = pyaudio.PyAudio()
+
+    stream = p.open(format=p.get_format_from_width(WIDTH),
+                    channels=CHANNELS,
+                    rate=RATE,
+                    output=True)
+    
+    # calculate pitch shift in semitones
+    # to work with pianoputer
+    n = 12. * scipy.log2(newPitch/originalPitch)
+    shiftedArray = pianoputer.pitchshift(soundArray,n)
+    
+    stream.write(shiftedArray)
     stream.stop_stream()
     stream.close()
 
@@ -169,6 +215,42 @@ def audioInput(samples=2048):
 
     return b''.join(frames)
 
+def recordSound(dur=1.):
+    """
+    User-friendly sound input.
+    
+    Counts down, then records sound for given
+    duration (in seconds).  Repeats until
+    a pitch is heard, then returns the recorded
+    sound.
+    """
+    
+    pitch = 0.
+    while pitch == 0.:
+        # countdown
+        for i in range(3,0,-1):
+            print i
+            time.sleep(1.)
+
+        # record sound
+        print "Recording..."
+        data = audioInput(int(RATE*dur))
+        
+        # um... something wrong with the format.
+        # try writing to file and reading back in.
+        tmpPrefix = 'recordSound_tmp'+str(os.getpid())
+        tmpWaveName = tmpPrefix+'.wav'
+        saveWave(data,tmpWaveName)
+        data = loadWave(tmpWaveName)
+        os.remove(tmpWaveName)
+        
+        # check for pitch
+        pitch = detectPitch(data)
+        if pitch == 0.:
+            print "Couldn't hear you.  Try again:"
+
+    return data
+
 def mapToInterval(pitch,minPitch=220.,maxPitch=440.):
     """
     Given an arbitrary pitch, find the equivalent note
@@ -183,21 +265,25 @@ def mapToInterval(pitch,minPitch=220.,maxPitch=440.):
 
     return mappedPitch
 
-def simpleCicada(learningRate=0.5,toneDur=(0.5,1.5),
+def simpleCicada(sound,learningRate=0.5,waitDur=(0.,0.5),
     initialPitch=440.,minPitchIn=0.,maxPitchIn=2000.,
     minPitchOut=220.,maxPitchOut=440.):
     """
     If a pitch is heard, change myPitch according to
         myPitch *= (heardPitch/myPitch)**learningRate.
 
-    Tone is played for a random time in the range given
-    by toneDur (in seconds).
+    Between sounds, wait a random time in the range given
+    by waitDur (in seconds).
 
     Returns list of heard pitches and list of played pitches
     (in Hz).
     """
     myPitch = initialPitch
     heardPitchList,myPitchList = [],[]
+
+    # measure pitch of audio sample
+    samplePitch = detectPitch(sound)
+    print "samplePitch = %.1f"%samplePitch
 
     try:
         while True:
@@ -214,13 +300,17 @@ def simpleCicada(learningRate=0.5,toneDur=(0.5,1.5),
             print "heardPitch = %.1f, mappedPitch = %.1f, myPitch = %.1f"%(heardPitch,mappedPitch,myPitch)
 
             # sing
-            dur = toneDur[0] \
-                + (toneDur[1]-toneDur[0])*scipy.random.rand()
-            playTone(myPitch,dur)
+            #playTone(myPitch,dur)
+            playSound(sound,samplePitch,myPitch)
 
             # log
             heardPitchList.append(heardPitch)
             myPitchList.append(myPitch)
+
+            # wait
+            dur = waitDur[0] \
+                + (waitDur[1]-waitDur[0])*scipy.random.rand()
+            time.sleep(dur)
 
     except KeyboardInterrupt:
         return heardPitchList,myPitchList
@@ -228,7 +318,19 @@ def simpleCicada(learningRate=0.5,toneDur=(0.5,1.5),
 
 if __name__ == '__main__':
 
-    heardPitchList,myPitchList = simpleCicada()
+    # () choose sound to use
+    #
+    # Use this line to record a sound to use.
+    #sound = recordSound()
+    #
+    # Use this line to load a wave file
+    #sound = loadWave("trumpet.wav")
+    #sound = loadWave("bowl.wav")
+    #sound = loadWave("trombone.wav")
+    sound = loadWave("clarinet.wav")
+
+    # () run cicada algorithm
+    heardPitchList,myPitchList = simpleCicada(sound)
 
 
 
