@@ -266,8 +266,8 @@ def mapToInterval(pitch,minPitch=220.,maxPitch=440.):
     return mappedPitch
 
 def simpleCicada(sound,learningRate=0.5,waitDur=(0.,0.5),
-    initialPitch=440.,minPitchIn=0.,maxPitchIn=2000.,
-    minPitchOut=220.,maxPitchOut=440.):
+    initialPitch=880.,minPitchIn=0.,maxPitchIn=2000.,
+    minPitchOut=880.,maxPitchOut=1760.):
     """
     If a pitch is heard, change myPitch according to
         myPitch *= (heardPitch/myPitch)**learningRate.
@@ -304,8 +304,9 @@ def simpleCicada(sound,learningRate=0.5,waitDur=(0.,0.5),
             playSound(sound,samplePitch,myPitch)
 
             # log
-            heardPitchList.append(heardPitch)
-            myPitchList.append(myPitch)
+            curTime = time.time()
+            heardPitchList.append([curTime,heardPitch])
+            myPitchList.append([curTime,myPitch])
 
             # wait
             dur = waitDur[0] \
@@ -313,6 +314,9 @@ def simpleCicada(sound,learningRate=0.5,waitDur=(0.,0.5),
             time.sleep(dur)
 
     except KeyboardInterrupt:
+        # save data to file
+        prefix = str(os.getpid())
+        scipy.savetxt(prefix+'pitchList.txt',myPitchList)
         return heardPitchList,myPitchList
 
 
@@ -325,10 +329,10 @@ if __name__ == '__main__':
     #
     # Use this line to load a wave file
     #sound = loadWave("trumpet.wav")
-    #sound = loadWave("bowl.wav")
+    sound = loadWave("bowl.wav")
     #sound = loadWave("trombone.wav")
-    sound = loadWave("clarinet.wav")
-
+    #sound = loadWave("clarinet.wav")
+    
     # () run cicada algorithm
     heardPitchList,myPitchList = simpleCicada(sound)
 
