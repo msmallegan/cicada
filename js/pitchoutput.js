@@ -14,7 +14,12 @@ function mapToInterval( pitch,minPitch,maxPitch ) {
     */
     var logIntervalRange = Math.log(maxPitch) - Math.log(minPitch);
     var d = (Math.log(pitch)-Math.log(minPitch)) % logIntervalRange;
-    var mappedPitch = Math.exp(Math.log(minPitch) + d);
+    if (pitch < minPitch) {
+        var mappedPitch = Math.exp(Math.log(maxPitch) + d);
+    }
+    else {
+        var mappedPitch = Math.exp(Math.log(minPitch) + d);
+    }
 
     return mappedPitch;
 }
@@ -74,8 +79,8 @@ var s = function( sketch ) {
             if (heardPitch < maxPitchIn) {
                 var mappedPitch = mapToInterval(heardPitch,minPitchOut,maxPitchOut);
                 //var mappedPitch = heardPitch;
-                var myPitch = Math.round( noteElem.innerHTML );
-                myPitch *= Math.pow(mappedPitch/myPitch,learningRate);
+                var myPitchOld = Math.round( noteElem.innerHTML );
+                var myPitch = myPitchOld * Math.pow(mappedPitch/myPitchOld,learningRate);
                 // Use PitchDetect's 'noteElem' text to display current output
                 noteElem.innerHTML = Math.round( myPitch );
             }
