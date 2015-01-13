@@ -32,7 +32,7 @@ data = {
 x = requests.post(URL, data=data)
 print(x.text)
 
-db = sqlite3.connect('/home/ellisocj/webapps/basic/cicada/frequencies.sqlite3')
+db = sqlite3.connect('frequencies.sqlite3')
 c = db.cursor()
 c.execute('SELECT * FROM frequencies ORDER BY id DESC LIMIT 1;')
 print(c.fetchall())
