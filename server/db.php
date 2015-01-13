@@ -1,4 +1,6 @@
 <?php
+// Allow cross-origin resource sharing (CORS)
+header('Access-Control-Allow-Origin: *');
 
 date_default_timezone_set('UTC');
 
