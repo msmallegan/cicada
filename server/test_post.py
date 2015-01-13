@@ -26,7 +26,8 @@ data = {
     # This is the format the SQLite inserts automatically for dt_received.
     # Stored in UTC.
     'dt_sent': now.strftime("%Y-%m-%d %H:%M:%S"),
-    'frequency': random.randint(0, 100)
+    'frequency_in': random.randint(0, 100),
+    'frequency_out': random.randint(0, 100)
 }
 
 x = requests.post(URL, data=data)

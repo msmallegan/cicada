@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS frequencies (
     location TEXT,
     dt_sent DATETIME,
     dt_received DATETIME DEFAULT CURRENT_TIMESTAMP,
-    frequency REAL
+    frequency_in REAL,
+    frequency_out REAL
 )
 DATA;
 $file_db->exec($statement);
@@ -25,18 +26,29 @@ $file_db->exec($statement);
 $session = $_POST["session"];
 $location = $_POST["location"];
 $dt_sent = $_POST["dt_sent"];
-$frequency = $_POST["frequency"];
+$frequency_in = $_POST["frequency_in"];
+if ($frequency_in === "--") {
+    $frequency_in = null;
+}
+$frequency_out = $_POST["frequency_out"];
+
 
 $insert = <<<DATA
-INSERT INTO frequencies (session, location, dt_sent, frequency)
-VALUES (:session, :location, :dt_sent, :frequency)
+INSERT INTO frequencies (
+    session, location, dt_sent, frequency_in, frequency_out
+) VALUES (:session, :location, :dt_sent, :frequency_in, :frequency_out)
 DATA;
 $stmt = $file_db->prepare($insert);
 
 $stmt->bindParam(':session', $session);
 $stmt->bindParam(':location', $location);
 $stmt->bindParam(':dt_sent', $dt_sent);
-$stmt->bindParam(':frequency', $frequency);
+if (is_null($frequency_in)) {
+    $stmt->bindParam(':frequency_in', $frequency_in, PDO::PARAM_NULL);
+} else {
+    $stmt->bindParam(':frequency_in', $frequency_in);
+}
+$stmt->bindParam(':frequency_out', $frequency_out);
 
 $stmt->execute();
 
