@@ -3,14 +3,58 @@
 <head>
 <title>Pitch Detector</title>
 <link href='http://fonts.googleapis.com/css?family=Alike' rel='stylesheet' type='text/css'>
+
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 
 <script>
+    // Set up moment
     moment().format();
 
+    // Test
     var now = moment.utc();
-    console.log(now.format());
-    console.log(now.toString());
+    console.log(now.format('YYYY-MM-DD HH:mm:ss'));
+
+    // This function will be called to send data back to server.
+    var sendData = function sendData() {
+
+        // Need to grab these from an HTML element, eventually.
+        var session = 'hi';
+        var location = [1,2];
+        var location = "(" + location.toString() + ")";
+
+        var dt_sent = moment.utc();
+        dt_sent = dt_sent.format('YYYY-MM-DD HH:mm:ss');
+
+        var frequency_out = parseFloat($("#note").html());
+        var frequency_in = $("#pitch").html();
+        if (frequency_in !== "--") {
+            frequency_in = parseFloat(frequency_in);
+        }
+
+        var data = {
+            session: session,
+            location: location,
+            dt_sent: dt_sent,
+            frequency_in: frequency_in,
+            frequency_out: frequency_out
+        };
+        console.log(data);
+
+        // Send it away!
+        $.ajax({
+            type: "POST",
+            url: "http://droova.com/cicada/db.php",
+            data: data
+        });
+
+    };
+
+    // Only after all elements have loaded.
+    $(window).load(function () {
+        setInterval(sendData, 5000); // 5 seconds
+    });
+
 </script>
 
 
