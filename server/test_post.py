@@ -23,8 +23,9 @@ dt = pytz.utc.localize(now)
 data = {
     'session': 'hello',
     'location': '(1,2)',
+    # This is the format the SQLite inserts automatically for dt_received.
+    # Stored in UTC.
     'dt_sent': now.strftime("%Y-%m-%d %H:%M:%S"),
-#    'dt_sent': dt,
     'frequency': random.randint(0, 100)
 }
 
