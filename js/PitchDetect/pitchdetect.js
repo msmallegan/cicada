@@ -93,7 +93,7 @@ window.onload = function() {
 	};
     
     // BCD 12.23.2014 automatically start "live input" mode
-    toggleLiveInput();
+    //toggleLiveInput();
 
 
 
@@ -163,18 +163,25 @@ function toggleLiveInput() {
 			window.cancelAnimationFrame = window.webkitCancelAnimationFrame;
         window.cancelAnimationFrame( rafID );
     }
-    getUserMedia(
-    	{
-            "audio": {
-                "mandatory": {
-                    "googEchoCancellation": "false",
-                    "googAutoGainControl": "false",
-                    "googNoiseSuppression": "false",
-                    "googHighpassFilter": "false"
-                },
-                "optional": []
-            },
-        }, gotStream);
+    
+    // Do nothing unless location is set
+    xloc = document.getElementById( "xloc" ).valueAsNumber;
+    yloc = document.getElementById( "yloc" ).valueAsNumber;
+    
+    if (!isNaN(xloc) && !isNaN(yloc)){
+		getUserMedia(
+			{
+				"audio": {
+					"mandatory": {
+						"googEchoCancellation": "false",
+						"googAutoGainControl": "false",
+						"googNoiseSuppression": "false",
+						"googHighpassFilter": "false"
+					},
+					"optional": []
+				},
+			}, gotStream);
+	  }
 }
 
 function togglePlayback() {

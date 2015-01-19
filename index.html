@@ -20,7 +20,9 @@
 
         // Need to grab these from an HTML element, eventually.
         var session = 'hi';
-        var location = [1,2];
+        var location = [document.getElementById( "xloc" ).valueAsNumber,
+                        document.getElementById( "yloc" ).valueAsNumber];
+        //var location = [1,2];
         var location = "(" + location.toString() + ")";
 
         var dt_sent = moment.utc();
@@ -51,9 +53,10 @@
     };
 
     // Only after all elements have loaded.
-    $(window).load(function () {
-        setInterval(sendData, 5000); // 5 seconds
-    });
+    // (The following records every 5 seconds)
+    //$(window).load(function () {
+    //    setInterval(sendData, 5000); // 5 seconds
+    //});
 
 </script>
 
@@ -88,6 +91,13 @@ div.vague { color: lightgrey; }
 <!--<button onclick="toggleLiveInput()">use live input</button>-->
 <!--<button onclick="toggleOscillator()">use oscillator</button>-->
 <!--<button onclick="updatePitch(0);">sample</button>-->
+
+<!--Location input-->
+X <input id="xloc" type="number" />
+Y <input id="yloc" type="number" />
+
+<!--Start button-->
+<button type="button" onclick="return toggleLiveInput()">Start!</button>
 
 <div id="detector" class="vague">
 <div class="pitch"><span id="pitch">--</span>Hz</div>

@@ -52,7 +52,7 @@ var s = function( sketch ) {
     sketch.draw = function() {
       sketch.background(20);
       
-      // BCD 12.23.2014 wait for sound input to start
+      // BCD 12.23.2014 wait for sound input to start and location to be set
       var active = false;
       detectorElem = document.getElementById( "detector" );
       if (detectorElem) {
@@ -71,6 +71,9 @@ var s = function( sketch ) {
 
             envelope.play(osc);
             note = (note + 1) % scaleArray.length;
+            
+            // Send data to server
+            sendData();
           }
           
           // (*) update myPitch between playing output notes
