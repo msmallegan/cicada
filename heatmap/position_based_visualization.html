@@ -9,6 +9,10 @@
       #heatmapContainer { width:100%; height:100%;}
       h1 { position:absolute; background:white; padding:10px;}
     </style>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="/js/deque.js"></script>
+    <script src="/js/parseData.js"></script>
+
   </head>
   <body>
     <div id="heatmapContainerWrapper">
@@ -18,46 +22,38 @@
     </div>
     <script src="/js/heatmap.js"></script>
     <script>
-      window.onload = function() {
+
+
+      var minFreq = 880;
+      var maxFreq = 1760;
+
+      $(document).ready(function () {
+
         // create heatmap instance
         var heatmap = h337.create({
           container: document.getElementById('heatmapContainer'),
           // a waterdrop gradient ;-)
-          gradient: { .1: 'rgba(0,0,0,0)', 0.25: "rgba(0,0,90, .6)", .6: "blue", .9: "cyan", .95: 'rgba(255,255,255,.4)'},
+          //gradient: { .1: 'rgba(0,0,0,0)', 0.25: "rgba(0,0,90, .6)", .6: "blue", .9: "cyan", .95: 'rgba(255,255,255,.4)'},
           maxOpacity: .9,
-          radius: 10,
+          radius: 50,
           blur: 1
         });
 
         // boundaries for data generation
+        var xMax = 10;
+        var yMax = 10;
         var width = (+window.getComputedStyle(document.body).width.replace(/px/,''));
         var height = (+window.getComputedStyle(document.body).height.replace(/px/,''));
 
         var update = function() {
-
-        }
-
-        var generate = function() {
-          var max = 100;
-          var min = 0;
-          var t = [];
-
-          var x = width/100 *50;
-          var y = height/100*50;
-          var c = 100;
-          var r = 10;
-
-          // add the datapoint to heatmap instance
-          heatmap.addData({ x: x, y:y, value: c, radius: r});
+          freqData.refresh(heatmap, width, height, xMax, yMax);
         };
 
-        // this generates new datapoints in a kind of random timing
-        setTimeout(function test() {
-          //var rand = (Math.random() * 500) >> 0;
-          generate();
-          setTimeout(test, 5000);
-        }, 100);
-      };
+        update();
+        setInterval(update, 5000);
+
+
+      });
     </script>
   </body>
 </html>

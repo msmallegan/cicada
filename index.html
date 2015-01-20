@@ -7,13 +7,15 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 
+<script src="js/deque.js"></script>
+<script src="js/parseData.js"></script>
+
 <script>
     // Set up moment
     moment().format();
 
-    // Test
-    var now = moment.utc();
-    console.log(now.format('YYYY-MM-DD HH:mm:ss'));
+    var minFreq = 880;
+    var maxFreq = 1760;
 
     // This function will be called to send data back to server.
     var sendData = function sendData() {
@@ -22,10 +24,11 @@
         var session = 'hi';
         var location = [document.getElementById( "xloc" ).valueAsNumber,
                         document.getElementById( "yloc" ).valueAsNumber];
-        //var location = [1,2];
-        var location = "(" + location.toString() + ")";
+        var location = JSON.stringify(location);
 
         var dt_sent = moment.utc();
+        // We use this format, rather than JSON.stringify(dt_sent) because this
+        // is how sqlite's DEFAULT CURRENT_TIMESTAMP formats the datetime.
         dt_sent = dt_sent.format('YYYY-MM-DD HH:mm:ss');
 
         var frequency_out = parseFloat($("#note").html());
@@ -40,6 +43,7 @@
             dt_sent: dt_sent,
             frequency_in: frequency_in,
             frequency_out: frequency_out
+            //frequency_out: Math.random() * (maxFreq - minFreq) + minFreq
         };
         //console.log(data);
 
