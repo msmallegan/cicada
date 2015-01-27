@@ -12,6 +12,7 @@
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="../js/deque.js"></script>
     <script src="../js/parseData.js"></script>
+    <script src="../js/grid.js"></script>
 
   </head>
   <body>
@@ -26,9 +27,17 @@
 
       var minFreq = 880;
       var maxFreq = 1760;
+      
+      var xMax = 10;
+      var yMax = xMax;
 
       $(document).ready(function () {
 
+        // boundaries for data generation
+        var size = getCanvasSize();
+        var width = size;
+        var height = size;
+    
         // create heatmap instance
         var heatmap = h337.create({
           container: document.getElementById('heatmapContainer'),
@@ -36,15 +45,9 @@
           gradient: { 0: 'lightyellow', 0.1:'gold', 0.75: 'orangered', 1:'crimson'},
           minOpacity: .9,
           maxOpacity: .9,
-          radius: 50,
+          radius: size/xMax/1.5,
           blur: 0.1
         });
-
-        // boundaries for data generation
-        var xMax = 10;
-        var yMax = 10;
-        var width = (+window.getComputedStyle(document.body).width.replace(/px/,''));
-        var height = (+window.getComputedStyle(document.body).height.replace(/px/,''));
 
         var update = function() {
           freqData.refresh(heatmap, width, height, xMax, yMax);
@@ -52,9 +55,36 @@
 
         update();
         setInterval(update, 5000);
-
-
       });
+      
+      function getCanvasSize() {
+        // boundaries for data generation
+        // for now assumes square grid
+        var width = (+window.getComputedStyle(document.body).width.replace(/px/,''));
+        var height = (+window.getComputedStyle(document.body).height.replace(/px/,''));
+        var size = Math.min(width,height)
+        return size;
+      }
+      
     </script>
+    
+    <canvas id="gridCanvas"></canvas>
+    <script>
+        // draw grid
+        var size = getCanvasSize();
+        var canvas = document.getElementById("gridCanvas");
+        canvas.width = size;
+        canvas.height = size;
+        //var canvas = document.getElementByClassName("heatmap-canvas")[0];
+        var context = canvas.getContext("2d");
+        var gridOpts = {
+            distance : size/xMax,
+            lineWidth : 0.1,
+            gridColor : "gray",
+            caption: false
+        };
+        new Grid(gridOpts).draw(context);
+    </script>
+    
   </body>
 </html>
