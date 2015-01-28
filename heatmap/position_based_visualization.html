@@ -25,8 +25,8 @@
     <script>
 
 
-      var minFreq = 880;
-      var maxFreq = 1760;
+      var minFreq = 440; //880;
+      var maxFreq = 880; //1760;
       
       var xMax = 10;
       var yMax = xMax;
@@ -54,7 +54,7 @@
         };
 
         update();
-        setInterval(update, 5000);
+        setInterval(update, 1000);
       });
       
       function getCanvasSize() {

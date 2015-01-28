@@ -29,12 +29,19 @@ var s = function( sketch ) {
     var scaleArray = [60, 62, 64, 65, 67, 69, 71, 72];
     var note = 0;
     
-    var minPitchOut = 880.;
-    var maxPitchOut = 1760.;
+    var minPitchOut = 440; //880.;
+    var maxPitchOut = 880; //1760.;
     
     var maxPitchIn = 2000.;
     
     var learningRate = 0.5;
+    
+    var minDelay = 50; // in number of frames
+    var maxDelay = 100;
+    
+    var playNow = true;
+    var lastPlayTime = 0;
+    var timeDelay = 1;
 
     sketch.setup = function() {
       sketch.createCanvas(710, 200);
@@ -61,7 +68,7 @@ var s = function( sketch ) {
       
       if (active) {
           // (*) Play myPitch
-          if (sketch.frameCount % 60 == 0) {
+          if (playNow) {
             //var midiValue = scaleArray[note];
             //var freqValue = sketch.midiToFreq(midiValue);
             // BCD 12.23.2014
@@ -74,10 +81,14 @@ var s = function( sketch ) {
             
             // Send data to server
             sendData();
+            
+            timeDelay = minDelay + Math.random()*(maxDelay-minDelay);
+            lastPlayTime = sketch.frameCount;
+            playNow = false;
           }
           
           // (*) update myPitch between playing output notes
-          if (sketch.frameCount % 60 == 59) {
+          if (sketch.frameCount > lastPlayTime + timeDelay) {
             var heardPitch = pitch;
             if (heardPitch < maxPitchIn) {
                 var mappedPitch = mapToInterval(heardPitch,minPitchOut,maxPitchOut);
@@ -86,6 +97,8 @@ var s = function( sketch ) {
                 var myPitch = myPitchOld * Math.pow(mappedPitch/myPitchOld,learningRate);
                 // Use PitchDetect's 'noteElem' text to display current output
                 noteElem.innerHTML = Math.round( myPitch );
+                
+                playNow = true;
             }
           }
       }
