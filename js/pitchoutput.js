@@ -44,7 +44,8 @@ var s = function( sketch ) {
     var timeDelay = 1;
 
     sketch.setup = function() {
-      sketch.createCanvas(710, 200);
+      
+      //sketch.createCanvas(710, 200);
       osc = new p5.SinOsc();
 
       // Instantiate the envelope with time / value pairs
@@ -57,7 +58,8 @@ var s = function( sketch ) {
     };
 
     sketch.draw = function() {
-      sketch.background(20);
+      
+      //sketch.background(20);
       
       // BCD 12.23.2014 wait for sound input to start and location to be set
       var active = false;
@@ -103,7 +105,8 @@ var s = function( sketch ) {
           }
       }
 
-      // plot FFT.analyze() frequency analysis on the canvas 
+      // plot FFT.analyze() frequency analysis (red bars) on the canvas
+      /*
       var spectrum = fft.analyze();
       for (var i = 0; i < spectrum.length/20; i++) {
         sketch.fill(spectrum[i], spectrum[i]/10, 0);
@@ -111,6 +114,7 @@ var s = function( sketch ) {
         var h = sketch.map(spectrum[i], 0, 255, 0, sketch.height);
         sketch.rect(x, sketch.height, spectrum.length/20, -h);
       }
+      */
     };
 };
 
