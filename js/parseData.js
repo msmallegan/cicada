@@ -34,12 +34,42 @@ var freqData = {};
                 }
                 context.updateData(x);
                 var means = context.calculateMeans(x, width, height, xMax, yMax);
+                if (means.length > 0) {
+                    console.log(means[0].value);
+                }
                 heatmap.setData({
                     min: minFreq,
                     max: maxFreq,
                     data: means
                 });
                 heatmap.repaint();
+            },
+        });
+    }
+ 
+    // For use in plot/index.html
+    context.refreshPlot = function refreshPlot(data) {
+        $.ajax({
+            url: "http://droova.com/cicada/view.py",
+            dataType: "json",
+            async: true,
+            data: {session: session, row_id: last_row},
+            success: function(x) {
+                if (x.length > 0) {
+                    last_row = x[0][0];
+                }
+                context.updateData(x);
+                var means = context.calculateMeans(x,1,1,1,1);
+                if (means.length > 0) {
+                    //console.log(means);
+                    var d = [];
+                    // Loop over cicadas
+                    for (var i=0; i < means.length; i++){
+                        d.push(means[i].value);
+                    }
+                    data.push(d);
+                    //console.log(d);
+                }
             },
         });
     }
