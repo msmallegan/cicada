@@ -61,14 +61,7 @@ var s = function( sketch ) {
       
       //sketch.background(20);
       
-      // BCD 12.23.2014 wait for sound input to start and location to be set
-      var active = false;
-      detectorElem = document.getElementById( "detector" );
-      if (detectorElem) {
-        active = (detectorElem.className == "confident");
-      }
-      
-      if (active) {
+      if (isPlaying) {
           // (*) Play myPitch
           if (playNow) {
             //var midiValue = scaleArray[note];
