@@ -183,11 +183,11 @@ function toggleLiveInput() {
     
     else{
         // Do nothing unless location is set
-        xloc = document.getElementById( "xloc" ).valueAsNumber;
-        yloc = document.getElementById( "yloc" ).valueAsNumber;
+        xloc = parseInt(document.getElementById( "xloc" ).value);
+        yloc = parseInt(document.getElementById( "yloc" ).value);
         
         // Ask for microphone access
-        if (!isNaN(xloc) && !isNaN(yloc)){
+        if (xloc>-1 && yloc>-1){
             getUserMedia(
                 {
                     "audio": {

@@ -1,8 +1,10 @@
 <!doctype html>
 <html>
 <head>
-<title>Pitch Detector</title>
+<title>Pitch Detector and Emitter</title>
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
 <link href='http://fonts.googleapis.com/css?family=Alike' rel='stylesheet' type='text/css'>
+
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -22,8 +24,8 @@
 
         // Need to grab these from an HTML element, eventually.
         var session = 'hi';
-        var location = [document.getElementById( "xloc" ).valueAsNumber,
-                        document.getElementById( "yloc" ).valueAsNumber];
+        var location = [parseInt(document.getElementById( "xloc" ).value),
+                        parseInt(document.getElementById( "yloc" ).value)];
         var location = JSON.stringify(location);
 
         var dt_sent = moment.utc();
@@ -97,11 +99,39 @@ div.vague { color: lightgrey; }
 <!--<button onclick="updatePitch(0);">sample</button>-->
 
 <!--Location input-->
-X <input id="xloc" type="number" />
-Y <input id="yloc" type="number" />
+<p>
+Horizontal coordinate: <select id="xloc">
+    <option value="-1"></option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+  </select>
+</p>
+<p>
+Vertical coordinate: <select id="yloc">
+    <option value="-1"></option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+  </select>
+</p>
 
 <!--Start button-->
+<p>
 <button id="startStopButton" type="button" onclick="return toggleLiveInput()">Start!</button>
+</p>
 
 <div id="detector" class="vague">
 <div class="pitch"><span id="pitch">--</span>Hz</div>
