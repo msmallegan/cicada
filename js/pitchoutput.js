@@ -92,9 +92,8 @@ var s = function( sketch ) {
                 var myPitch = myPitchOld * Math.pow(mappedPitch/myPitchOld,learningRate);
                 // Use PitchDetect's 'noteElem' text to display current output
                 noteElem.innerHTML = Math.round( myPitch );
-                
-                playNow = true;
             }
+            playNow = true;
           }
       }
 

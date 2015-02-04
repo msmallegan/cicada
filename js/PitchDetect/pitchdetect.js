@@ -389,6 +389,7 @@ function updatePitch( time ) {
 		//noteElem.innerText = "-";
 		detuneElem.className = "";
 		detuneAmount.innerText = "";
+        pitch = NaN;
  	} else {
 	 	detectorElem.className = "confident";
 	 	pitch = ac;
