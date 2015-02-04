@@ -355,8 +355,12 @@ function updatePitch( time ) {
 	// TODO: Paint confidence meter on canvasElem here.
 
 	if (DEBUGCANVAS) {  // This draws the current waveform, useful for debugging
-		waveCanvas.clearRect(0,0,512,256);
-		waveCanvas.strokeStyle = "red";
+		var xmax = 256; //512;
+        var ymax = 64; //256;
+        
+        waveCanvas.clearRect(0,0,xmax,ymax);
+		/*
+        waveCanvas.strokeStyle = "red";
 		waveCanvas.beginPath();
 		waveCanvas.moveTo(0,0);
 		waveCanvas.lineTo(0,256);
@@ -369,11 +373,12 @@ function updatePitch( time ) {
 		waveCanvas.moveTo(512,0);
 		waveCanvas.lineTo(512,256);
 		waveCanvas.stroke();
+        */
 		waveCanvas.strokeStyle = "black";
 		waveCanvas.beginPath();
-		waveCanvas.moveTo(0,buf[0]);
-		for (var i=1;i<512;i++) {
-			waveCanvas.lineTo(i,128+(buf[i]*128));
+		waveCanvas.moveTo(0,ymax/2+buf[0]);
+		for (var i=1;i<xmax;i++) {
+			waveCanvas.lineTo(i,ymax/2+(buf[i]*ymax/2));
 		}
 		waveCanvas.stroke();
 	}
