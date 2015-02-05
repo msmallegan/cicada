@@ -4,10 +4,12 @@
 <title>Pitch Detector and Emitter</title>
 <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
 <link href='http://fonts.googleapis.com/css?family=Alike' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 
 <script src="js/deque.js"></script>
 <script src="js/parseData.js"></script>
@@ -61,7 +63,7 @@
     // Only after all elements have loaded.
     // (The following records every 5 seconds)
     //$(window).load(function () {
-    //    setInterval(sendData, 5000); // 5 seconds
+        //setInterval(sendData, 5000); // 5 seconds
     //});
 
 </script>
@@ -80,6 +82,26 @@ div.vague { color: lightgrey; }
 #sharp { display: none; }
 .flat #flat { display: inline; }
 .sharp #sharp { display: inline; }
+
+#coordinates {
+    min-width: 300px;
+}
+
+#coordinates td {
+    padding: 10px;
+}
+
+#positionMessage {
+    text-align: center;
+    color: red;
+}
+
+#startStopButton {
+    cursor: pointer;
+    cursor: hand;
+    min-width: 150px;
+    text-align: center;
+}
 </style>
 
 </head>
@@ -113,34 +135,45 @@ div.vague { color: lightgrey; }
 
 <!-- Location input -->
 <div align="center">
+<table id="coordinates">
+<tr>
+    <td>Horizontal coordinate:</td>
+    <td>
+        <select id="xloc">
+            <option value="-1"></option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+      </select>
+    </td>
+</tr>
+<tr>
+    <td>Vertical coordinate:</td>
+    <td>
+        <select id="yloc">
+            <option value="-1"></option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+        </select>
+    </td>
+</tr>
+</table>
 <p>
-Horizontal coordinate: <select id="xloc">
-    <option value="-1"></option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-  </select>
-</p>
+    <span id="positionMessage"></span>
 <p>
-Vertical coordinate: <select id="yloc">
-    <option value="-1"></option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-  </select>
-</p>
 </div>
 
 </div>

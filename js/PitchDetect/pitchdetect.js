@@ -34,7 +34,7 @@ var theBuffer = null;
 var DEBUGCANVAS = null;
 var mediaStreamSource = null;
 var haveAudioPermission = false;
-var detectorElem, 
+var detectorElem,
 	canvasElem,
 	waveCanvas,
 	pitchElem,
@@ -50,7 +50,7 @@ window.onload = function() {
 	request.open("GET", "../sounds/whistling3.ogg", true);
 	request.responseType = "arraybuffer";
 	request.onload = function() {
-	  audioContext.decodeAudioData( request.response, function(buffer) { 
+	  audioContext.decodeAudioData( request.response, function(buffer) {
 	    	theBuffer = buffer;
 		} );
 	}
@@ -70,8 +70,8 @@ window.onload = function() {
 	detuneElem = document.getElementById( "detune" );
 	detuneAmount = document.getElementById( "detune_amt" );
 
-	detectorElem.ondragenter = function () { 
-		this.classList.add("droptarget"); 
+	detectorElem.ondragenter = function () {
+		this.classList.add("droptarget");
 		return false; };
 	detectorElem.ondragleave = function () { this.classList.remove("droptarget"); return false; };
 	detectorElem.ondrop = function (e) {
@@ -83,7 +83,7 @@ window.onload = function() {
 	  	reader.onload = function (event) {
 	  		audioContext.decodeAudioData( event.target.result, function(buffer) {
 	    		theBuffer = buffer;
-	  		}, function(){alert("error loading!");} ); 
+	  		}, function(){alert("error loading!");} );
 
 	  	};
 	  	reader.onerror = function (event) {
@@ -92,7 +92,7 @@ window.onload = function() {
 	  	reader.readAsArrayBuffer(e.dataTransfer.files[0]);
 	  	return false;
 	};
-    
+
     // BCD 12.23.2014 automatically start "live input" mode
     //toggleLiveInput();
 
@@ -106,8 +106,9 @@ function error() {
 
 function getUserMedia(dictionary, callback) {
     if (!haveAudioPermission){
+	    $("#positionMessage").html("Click 'Allow' up above.").effect("shake");
         try {
-            navigator.getUserMedia = 
+            navigator.getUserMedia =
                 navigator.getUserMedia ||
                 navigator.webkitGetUserMedia ||
                 navigator.mozGetUserMedia;
@@ -131,11 +132,13 @@ function gotStream(stream) {
     analyser.fftSize = 2048;
     mediaStreamSource.connect( analyser );
     updatePitch();
-    
+
     // remember that we have gotten audio permission
     haveAudioPermission = true;
-    
+
     document.getElementById("startStopButton").innerHTML= "Stop";
+    $("#positionMessage").html("");
+    $("#startStopButton").css("background", "#B51E41");
     isPlaying = true;
 }
 
@@ -168,6 +171,7 @@ function toggleOscillator() {
 */
 
 function toggleLiveInput() {
+	$("#startStopButton").blur();
     if (isPlaying) {
         //stop playing and return
         //sourceNode.stop( 0 );
@@ -179,15 +183,18 @@ function toggleLiveInput() {
 			window.cancelAnimationFrame = window.webkitCancelAnimationFrame;
         window.cancelAnimationFrame( rafID );
         document.getElementById("startStopButton").innerHTML= "Start!";
+        // This only removes the on-the-fly style, it doesn't change the CSS.
+		$("#startStopButton").removeAttr("style");
+
     }
-    
+
     else{
         // Do nothing unless location is set
         xloc = parseInt(document.getElementById( "xloc" ).value);
         yloc = parseInt(document.getElementById( "yloc" ).value);
-        
+
         // Ask for microphone access
-        if (xloc>-1 && yloc>-1){
+        if (xloc > -1 && yloc > -1) {
             getUserMedia(
                 {
                     "audio": {
@@ -200,7 +207,12 @@ function toggleLiveInput() {
                         "optional": []
                     },
                 }, gotStream);
-          }
+        }
+        else {
+        	// Show warning to select positions.
+        	$("#positionMessage").html("Please specify your coordinates.");
+        	$("#positionMessage").effect("shake");
+        }
     }
 }
 
@@ -332,10 +344,10 @@ function autoCorrelate( buf, sampleRate ) {
 			// we need to do a curve fit on correlations[] around best_offset in order to better determine precise
 			// (anti-aliased) offset.
 
-			// we know best_offset >=1, 
-			// since foundGoodCorrelation cannot go to true until the second pass (offset=1), and 
+			// we know best_offset >=1,
+			// since foundGoodCorrelation cannot go to true until the second pass (offset=1), and
 			// we can't drop into this clause until the following pass (else if).
-			var shift = (correlations[best_offset+1] - correlations[best_offset-1])/correlations[best_offset];  
+			var shift = (correlations[best_offset+1] - correlations[best_offset-1])/correlations[best_offset];
 			return sampleRate/(best_offset+(8*shift));
 		}
 		lastCorrelation = correlation;
@@ -357,7 +369,7 @@ function updatePitch( time ) {
 	if (DEBUGCANVAS) {  // This draws the current waveform, useful for debugging
 		var xmax = 256; //512;
         var ymax = 64; //256;
-        
+
         waveCanvas.clearRect(0,0,xmax,ymax);
 		/*
         waveCanvas.strokeStyle = "red";
@@ -396,7 +408,7 @@ function updatePitch( time ) {
 	 	pitchElem.innerText = Math.round( pitch ) ;
 	 	//var note =  noteFromPitch( pitch );
 		//noteElem.innerHTML = noteStrings[note%12];
-		
+
         // BCD 12.23.2014 remove detuning text
         /*
         var detune = centsOffFromPitch( pitch, note );
