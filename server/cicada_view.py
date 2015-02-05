@@ -64,6 +64,50 @@ def json_last_row():
     ]
     return headers, output
 
+def get_instructions():
+    statement = '''SELECT value from admin where key = "pause"'''
+    db = sqlite3.connect(dbname)
+    c = db.cursor()
+    c.execute(statement)
+    pause = c.fetchone()[0]
+    if pause == "1" or pause == "true":
+        pause = True
+    else:
+        pause = False
+    x = {'pause': pause}
+    output = json.dumps(x)
+    headers = [
+        ('Content-Length', str(len(output))),
+        ('Content-Type', 'application/json'),
+        ('Access-Control-Allow-Origin', '*'),
+    ]
+    return headers, output
+
+def set_instructions(instructions):
+    known_keys = ['pause']
+
+    db = sqlite3.connect(dbname)
+    db.row_factory = list_factory
+    c = db.cursor()
+
+    pause = '''UPDATE admin set value = "1" where key = "pause"'''
+    unpause = '''UPDATE admin set value = "0" where key = "pause"'''
+
+    if instructions["pause"] == "1" or instructions["pause"] == "true":
+        c.execute(pause)
+    else:
+        c.execute(unpause)
+    db.commit()
+
+    output = ''
+    headers = [
+        ('Content-Length', str(len(output))),
+        ('Content-Type', 'application/json'),
+        ('Access-Control-Allow-Origin', '*'),
+    ]
+    return headers, output
+
+
 
 def rows_since(session, row_id):
     statement = '''SELECT * FROM frequencies where session = ? and id > ?
@@ -106,6 +150,14 @@ def last_30():
     ]
     return headers, output
 
+def getvalue(item):
+    try:
+        # GET
+        x  = item[0]
+    except TypeError:
+        # POST
+        x = item.value
+    return x
 
 def application(environ, start_response):
 
@@ -128,6 +180,7 @@ def application(environ, start_response):
     #headers = [
     #    ('Content-Length', str(len(output))),
     #    ('Content-Type', 'text/plain'),
+    #    ('Access-Control-Allow-Origin', '*'),
     #]
 
     try:
@@ -135,13 +188,32 @@ def application(environ, start_response):
     except KeyError:
         headers, output = last_30()
     else:
-        session = session[0]
-        row_id = form['row_id'][0]
-        if row_id == 'last':
-            headers, output = json_last_row()
+        session = getvalue(session)
+
+        if session == 'admin':
+            # Send out instructions to clients.
+            try:
+                # hardcode "pause" for now
+                pause = form['pause']
+            except KeyError:
+                headers, output = get_instructions()
+            else:
+                pause = getvalue(pause)
+                instructions = {'pause': pause}
+                set_instructions(instructions)
+                headers, output = get_instructions()
         else:
-            row_id = int(row_id)
-            headers, output = rows_since(session, row_id)
+            try:
+                row_id = form['row_id']
+            except KeyError:
+                headers, output = last_30()
+            else:
+                row_id = getvalue(row_id)
+                if row_id == 'last':
+                    headers, output = json_last_row()
+                else:
+                    row_id = int(row_id)
+                    headers, output = rows_since(session, row_id)
 
     start_response('200 OK', headers)
 

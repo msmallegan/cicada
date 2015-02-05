@@ -21,6 +21,32 @@
     var minFreq = 440;
     var maxFreq = 880;
 
+    var isPaused = false;
+
+    // This function will be called after sending data to the server.
+    var receivedInstructions = function (data, textStatus, jqHXR) {
+        makePaused = data["pause"];
+        // We don't do anything unless the desired state is different
+        // from the current state.
+        if (isPaused != makePaused) {
+            toggleLiveInput(makePaused);
+        }
+    }
+
+    var getInstructions = function () {
+        var data = {
+            session: "admin" // Special session means send out instructions.
+        }
+        $.ajax({
+            type: "POST",
+            url: "http://droova.com/python/cicada_view.py",
+            data: data,
+            dataType: 'json',
+            success: receivedInstructions,
+        });
+
+    }
+
     // This function will be called to send data back to server.
     var sendData = function sendData() {
 
@@ -61,10 +87,10 @@
     };
 
     // Only after all elements have loaded.
-    // (The following records every 5 seconds)
-    //$(window).load(function () {
-        //setInterval(sendData, 5000); // 5 seconds
-    //});
+    // (The following runs every 5 seconds)
+    $(window).load(function () {
+        setInterval(getInstructions, 5000); // 5 seconds
+    });
 
 </script>
 

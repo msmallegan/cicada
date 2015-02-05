@@ -2,8 +2,9 @@
 
 // Allow cross-origin resource sharing (CORS)
 
-header('Access-Control-Allow-Origin: *');
-date_default_timezone_set('UTC');
+header("Content-type: application/json");
+header("Access-Control-Allow-Origin: *");
+date_default_timezone_set("UTC");
 try
 {
 
@@ -15,15 +16,20 @@ try
 
     $file_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $statement = <<<DATA
+CREATE TABLE IF NOT EXISTS admin (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    key TEXT,
+    value TEXT
+);
 CREATE TABLE IF NOT EXISTS frequencies (
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-session TEXT,
-location TEXT,
-dt_sent DATETIME,
-dt_received DATETIME DEFAULT CURRENT_TIMESTAMP,
-frequency_in REAL,
-frequency_out REAL
-)
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session TEXT,
+    location TEXT,
+    dt_sent DATETIME,
+    dt_received DATETIME DEFAULT CURRENT_TIMESTAMP,
+    frequency_in REAL,
+    frequency_out REAL
+);
 DATA;
     $file_db->exec($statement);
     $session = $_POST["session"];
@@ -62,6 +68,7 @@ DATA;
         // Close file db connection
 
         $file_db = null;
+
     }
 } // End try
 catch(PDOException $e)

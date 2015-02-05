@@ -170,50 +170,93 @@ function toggleOscillator() {
 }
 */
 
-function toggleLiveInput() {
+function toggleLiveInput(makePaused) {
     $("#startStopButton").blur();
-    if (isPlaying) {
-        //stop playing and return
-        //sourceNode.stop( 0 );
-        //sourceNode = null;
-        detectorElem.className = "vague";
-        analyser = null;
-        isPlaying = false;
-        if (!window.cancelAnimationFrame)
-            window.cancelAnimationFrame = window.webkitCancelAnimationFrame;
-        window.cancelAnimationFrame( rafID );
-        document.getElementById("startStopButton").innerHTML= "Start!";
-        // This only removes the on-the-fly style, it doesn't change the CSS.
-        $("#startStopButton").removeAttr("style");
 
-    }
+    if (typeof makePaused !== "undefined") {
 
-    else{
-        // Do nothing unless location is set
-        xloc = parseInt(document.getElementById( "xloc" ).value);
-        yloc = parseInt(document.getElementById( "yloc" ).value);
+        // Then this was called from the successfulSend, which means that
+        // we want to change the state.
+        if (isPaused) {
+            // Nothing is playing, and we want to unpause.
+            // We will simply make the button read "Start!" and be clickable.
+            isPaused = false;
+            isPlaying = false;
 
-        // Ask for microphone access
-        if (xloc > -1 && yloc > -1) {
-            getUserMedia(
-                {
-                    "audio": {
-                        "mandatory": {
-                            "googEchoCancellation": "false",
-                            "googAutoGainControl": "false",
-                            "googNoiseSuppression": "false",
-                            "googHighpassFilter": "false"
-                        },
-                        "optional": []
-                    },
-                }, gotStream);
+            // This only removes the on-the-fly style, it doesn't change the CSS.
+
+            $("#startStopButton").removeAttr("style");
+            $("#startStopButton").html("Start!");
+            $("#startStopButton").prop('disabled', false);
+
+            $("#positionMessage").html('Click "Start!" to begin again.');
+            $("#positionMessage").effect("shake");
+
+
         }
         else {
-            // Show warning to select positions.
-            $("#positionMessage").html("Please specify your coordinates.");
-            $("#positionMessage").effect("shake");
+            // Potentially, stuff might be playing, but either way, we want
+            // to pause. We make the button read "Locked" and not clickable.
+            isPaused = true;
+
+            $("#positionMessage").html("");
+            $("#startStopButton").css("background", "purple");
+            $("#startStopButton").html("Disabled");
+            $("#startStopButton").prop('disabled', true);
+
+            detectorElem.className = "vague";
+            analyser = null;
+            isPlaying = false;
+            if (!window.cancelAnimationFrame) {
+                window.cancelAnimationFrame = window.webkitCancelAnimationFrame;
+            }
+            window.cancelAnimationFrame( rafID );
         }
     }
+    else {
+        if (isPlaying) {
+            //stop playing and return
+            //sourceNode.stop( 0 );
+            //sourceNode = null;
+            detectorElem.className = "vague";
+            analyser = null;
+            isPlaying = false;
+            if (!window.cancelAnimationFrame)
+                window.cancelAnimationFrame = window.webkitCancelAnimationFrame;
+            window.cancelAnimationFrame( rafID );
+            document.getElementById("startStopButton").innerHTML= "Start!";
+            // This only removes the on-the-fly style, it doesn't change the CSS.
+            $("#startStopButton").removeAttr("style");
+
+        }
+
+        else{
+            // Do nothing unless location is set
+            xloc = parseInt(document.getElementById( "xloc" ).value);
+            yloc = parseInt(document.getElementById( "yloc" ).value);
+
+            // Ask for microphone access
+            if (xloc > -1 && yloc > -1) {
+                getUserMedia(
+                    {
+                        "audio": {
+                            "mandatory": {
+                                "googEchoCancellation": "false",
+                                "googAutoGainControl": "false",
+                                "googNoiseSuppression": "false",
+                                "googHighpassFilter": "false"
+                            },
+                            "optional": []
+                        },
+                    }, gotStream);
+            }
+            else {
+                // Show warning to select positions.
+                $("#positionMessage").html("Please specify your coordinates.");
+                $("#positionMessage").effect("shake");
+            }
+        } // end else
+    } // end doSomething
 }
 
 /*
