@@ -7,11 +7,12 @@ var freqData = {};
 
     var session = 'hi';
     var capacity = 5;
+    var URL = "http://droova.com/python/cicada_view.py"
 
     // Fetch the last row id, synchronously.
     var last_row;
     $.ajax({
-        url: "http://droova.com/cicada/view.py",
+        url: URL,
         dataType: "json",
         async: false,
         data: {session: session, row_id: "last"},
@@ -24,7 +25,7 @@ var freqData = {};
     context.queues = {};
     context.refresh = function refresh(heatmap, width, height, xMax, yMax) {
         $.ajax({
-            url: "http://droova.com/cicada/view.py",
+            url: URL,
             dataType: "json",
             async: true,
             data: {session: session, row_id: last_row},
@@ -50,7 +51,7 @@ var freqData = {};
     // For use in plot/index.html
     context.refreshPlot = function refreshPlot(data) {
         $.ajax({
-            url: "http://droova.com/cicada/view.py",
+            url: URL,
             dataType: "json",
             async: true,
             data: {session: session, row_id: last_row},

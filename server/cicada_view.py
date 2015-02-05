@@ -1,10 +1,7 @@
-#!/usr/local/bin/python2.7
 """
 Naive view of data.
 
 """
-from __future__ import print_function
-
 from ast import literal_eval
 from collections import OrderedDict
 
@@ -13,13 +10,17 @@ import sqlite3
 import cgi
 import json
 
+import os
+from os.path import expanduser
+HOME = expanduser("~")
+
 # Note: Convert to datetime via:
 #    datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')
 
 # Note: If frequency_in is '--' in HTML, then it is saved
 #    into database as null, which is exported to Python as None.
 
-dbname = 'frequencies.sqlite3'
+dbname = os.path.join(HOME, 'webapps/basic/cicada/frequencies.sqlite3')
 
 def dict_factory(cursor, row):
     d = OrderedDict()
@@ -43,6 +44,7 @@ def list_factory(cursor, row):
         d.append(val)
     return d
 
+
 def last_row():
     statement = '''SELECT id FROM frequencies ORDER BY id DESC limit 1'''
     db = sqlite3.connect(dbname)
@@ -51,11 +53,17 @@ def last_row():
     row_id = c.fetchone()[0]
     return row_id
 
+
 def json_last_row():
     x = {'last_row': last_row()}
-    print("Content-type: application/json")
-    print("Access-Control-Allow-Origin: *\n")
-    print(json.dumps(x))
+    output = json.dumps(x)
+    headers = [
+        ('Content-Length', str(len(output))),
+        ('Content-Type', 'application/json'),
+        ('Access-Control-Allow-Origin', '*'),
+    ]
+    return headers, output
+
 
 def rows_since(session, row_id):
     statement = '''SELECT * FROM frequencies where session = ? and id > ?
@@ -67,39 +75,74 @@ def rows_since(session, row_id):
     db.row_factory = list_factory
     c = db.cursor()
     c.execute(statement, (session, row_id))
-    print("Content-type: application/json")
-    print("Access-Control-Allow-Origin: *\n")
     rows = c.fetchall()
-    print(json.dumps(rows))
+    output = json.dumps(rows)
     db.close()
+
+    headers = [
+        ('Content-Length', str(len(output))),
+        ('Content-Type', 'application/json'),
+        ('Access-Control-Allow-Origin', '*'),
+    ]
+    return headers, output
+
 
 def last_30():
     db = sqlite3.connect(dbname)
     c = db.cursor()
     c.execute('SELECT * FROM frequencies ORDER BY id DESC LIMIT 30;')
 
-    print("Content-type: text/plain\n\n")
-    print("""
+    output = ["""
     id, session, location, date sent, date received, frequency_in, frequency_out
-    """)
+    """]
     for row in c:
-        print(row)
+        output.append(str(row))
     db.close()
 
-def main():
-    form = cgi.FieldStorage()
+    output = '\n'.join(output)
+    headers = [
+        ('Content-Length', str(len(output))),
+        ('Content-Type', 'text/plain'),
+    ]
+    return headers, output
+
+
+def application(environ, start_response):
+
+    if environ['REQUEST_METHOD'] == 'POST':
+        post_env = environ.copy()
+        post_env['QUERY_STRING'] = ''
+        post = cgi.FieldStorage(
+            fp=environ['wsgi.input'],
+            environ=post_env,
+            keep_blank_values=True
+        )
+        form = post
+    elif environ['QUERY_STRING']:
+        form = cgi.parse_qs(environ['QUERY_STRING'])
+        form['REQUEST_METHOD'] = 'GET'
+    else:
+        form = {}
+
+    #output = str(form)
+    #headers = [
+    #    ('Content-Length', str(len(output))),
+    #    ('Content-Type', 'text/plain'),
+    #]
+
     try:
         session = form['session']
     except KeyError:
-        last_30()
+        headers, output = last_30()
     else:
-        session = session.value
-        row_id = form['row_id'].value
+        session = session[0]
+        row_id = form['row_id'][0]
         if row_id == 'last':
-            json_last_row()
+            headers, output = json_last_row()
         else:
             row_id = int(row_id)
-            rows_since(session, row_id)
+            headers, output = rows_since(session, row_id)
 
-if __name__ == '__main__':
-    main()
+    start_response('200 OK', headers)
+
+    return [bytes(output, 'utf-8')]
