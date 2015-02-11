@@ -84,9 +84,12 @@ var s = function( sketch ) {
           
           // (*) update myPitch between playing output notes
           if (sketch.frameCount > lastPlayTime + timeDelay) {
+            var learningRate = document.getElementById( "learningRate" ).value / 100.;
+            var desiredInterval = document.getElementById( "desiredInterval" ).value / 6.;
             var heardPitch = pitch;
             if (heardPitch < maxPitchIn) {
-                var mappedPitch = mapToInterval(heardPitch,minPitchOut,maxPitchOut);
+                var desiredPitch = heardPitch * Math.pow(2,desiredInterval);
+                var mappedPitch = mapToInterval(desiredPitch,minPitchOut,maxPitchOut);
                 //var mappedPitch = heardPitch;
                 var myPitchOld = Math.round( noteElem.innerHTML );
                 var myPitch = myPitchOld * Math.pow(mappedPitch/myPitchOld,learningRate);
