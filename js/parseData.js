@@ -6,7 +6,7 @@ var freqData = {};
 (function (context) {
 
     var session = 'hi';
-    var capacity = 5;
+    var capacity = 1; //5;
     var URL = "http://droova.com/python/cicada_view.py"
 
     // Fetch the last row id, synchronously.
