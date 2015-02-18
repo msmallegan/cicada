@@ -140,6 +140,9 @@ function gotStream(stream) {
     $("#positionMessage").html("");
     $("#startStopButton").css("background", "#B51E41");
     isPlaying = true;
+    
+    // set initial pitch
+    noteElem.innerText = document.getElementById( "initialPitch" ).value;
 }
 
 /*
