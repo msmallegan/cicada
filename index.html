@@ -90,6 +90,10 @@
     // (The following runs every 5 seconds)
     $(window).load(function () {
         setInterval(getInstructions, 5000); // 5 seconds
+        
+        $("#initialPitch").change( function() {
+            $("#note").html( document.getElementById( "initialPitch" ).value );
+        });
     });
 
 </script>
@@ -202,17 +206,17 @@ div.vague { color: lightgrey; }
 <p>
 </div>
 
-<!-- Initial pitch input -->
-<div>
-Initial pitch: <input type="range" id="initialPitch" min="440" max="880" value="500" />
-</div>
-
 <!-- Learning parameters input -->
 <div>
 Learning rate: Slow <input type="range" id="learningRate" min="0" max="100" value="50" /> Fast
 </div>
 <div>
 Desired interval: 0 <input type="range" id="desiredInterval" min="0" max="3" value="0"/> 1/2 octave
+</div>
+
+<!-- Pitch control input -->
+<div>
+Manually set pitch: <input type="range" id="initialPitch" min="440" max="880" value="500" />
 </div>
 
 
