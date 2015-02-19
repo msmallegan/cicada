@@ -5,11 +5,13 @@
 <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
 <link href='http://fonts.googleapis.com/css?family=Alike' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="nstSlider/jquery.nstSlider.min.css">
 
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+<script src="nstSlider/jquery.nstSlider.min.js"></script>
 
 <script src="js/deque.js"></script>
 <script src="js/parseData.js"></script>
@@ -90,10 +92,71 @@
     // (The following runs every 5 seconds)
     $(window).load(function () {
         setInterval(getInstructions, 5000); // 5 seconds
-        
-        $("#initialPitch").change( function() {
-            $("#note").html( document.getElementById( "initialPitch" ).value );
+
+        $('#initialPitch').nstSlider({
+            "left_grip_selector": ".leftGrip",
+            "value_bar_selector": ".bar",
+            "value_changed_callback": function(cause, leftValue, rightValue) {
+                var $container = $(this).parent();
+
+                var minData = $(this).attr('data-range_min'),
+                    maxData = $(this).attr('data-range_max');
+
+                var color = 255 / (maxData - minData) * (leftValue - minData);
+                color = Math.floor(color);
+
+                var b = color,
+                    g = 127
+                    r = (color - 155) - 127;
+
+                $container.find('.leftLabel').text(leftValue);
+                $(note).html(leftValue);
+                $(this).find('.bar').css('background', 'rgb(' + [r, g, b].join(',') + ')');
+            }
         });
+
+        $('#desiredInterval').nstSlider({
+            "left_grip_selector": ".leftGrip",
+            "value_bar_selector": ".bar",
+            "value_changed_callback": function(cause, leftValue, rightValue) {
+                var $container = $(this).parent();
+
+                var minData = $(this).attr('data-range_min'),
+                    maxData = $(this).attr('data-range_max');
+
+                var color = 255 / (maxData - minData) * (leftValue - minData);
+                color = Math.floor(color);
+
+                var b = color,
+                    g = 127
+                    r = (color - 155) - 127;
+
+                $container.find('.leftLabel').text(leftValue);
+                $(this).find('.bar').css('background', 'rgb(' + [r, g, b].join(',') + ')');
+            }
+        });
+
+        $('#learningRate').nstSlider({
+            "left_grip_selector": ".leftGrip",
+            "value_bar_selector": ".bar",
+            "value_changed_callback": function(cause, leftValue, rightValue) {
+                var $container = $(this).parent();
+
+                var minData = $(this).attr('data-range_min'),
+                    maxData = $(this).attr('data-range_max');
+
+                var color = 255 / (maxData - minData) * (leftValue - minData);
+                color = Math.floor(color);
+
+                var b = color,
+                    g = 127
+                    r = (color - 155) - 127;
+
+                $container.find('.leftLabel').text(leftValue);
+                $(this).find('.bar').css('background', 'rgb(' + [r, g, b].join(',') + ')');
+            }
+        });
+
     });
 
 </script>
@@ -101,20 +164,24 @@
 
 <style>
 body { font: 14pt 'Alike', sans-serif;}
-#note { font-size: 164px; line-height: 90%;}
+#note { font-size: 120px; line-height: 90%;}
 .droptarget { background-color: #348781}
 div.confident { color: black; }
 div.vague { color: lightgrey; }
 
-#detector { width: 300px; height: 300px; border: 4px solid gray; border-radius: 8px; text-align: center; padding-top: 10px;}
+#detector { width: 300px; height: 250px; border: 4px solid gray; border-radius: 8px; text-align: center; padding-top: 10px;}
 #output { width: 300px; height: 42px; }
 #flat { display: none; }
 #sharp { display: none; }
 .flat #flat { display: inline; }
 .sharp #sharp { display: inline; }
 
+#xcoord {
+    padding-right: 20px;
+}
+
 #coordinates {
-    min-width: 300px;
+    min-width: 500px;
 }
 
 #coordinates td {
@@ -132,6 +199,35 @@ div.vague { color: lightgrey; }
     min-width: 150px;
     text-align: center;
 }
+
+#initialPitch, #learningRate, #desiredInterval {
+    display: inline-block;
+    width: 80%;
+}
+
+.ui-slider .ui-slider-handle {
+    width: 10px;
+}
+
+
+.nstSlider {
+    background: lightgray;
+
+}
+.nstSlider .leftGrip {
+    background: darkgray;
+}
+
+.widget {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: 300px;
+  margin: 0 auto;
+  position: relative;
+}
+
 </style>
 
 </head>
@@ -148,13 +244,21 @@ div.vague { color: lightgrey; }
 
 <!-- Detector and output text -->
 <div id="detector" class="vague">
-<div>Heard</div>
-<div class="pitch"><span id="pitch">--</span> Hz</div>
-<canvas id="waveform" width="256" height="64"></canvas>
-<div>Output</div>
-<div class="note"><span id="note">880</span></div>
-<!--<canvas id="output" width=300 height=42></canvas>-->
-<div id="detune"><span id="detune_amt"></span><span id="flat">cents &#9837;</span><span id="sharp">cents &#9839;</span></div>
+    <div>Heard</div>
+    <div class="pitch">
+        <span id="pitch">--</span> Hz
+    </div>
+    <canvas id="waveform" width="256" height="64"></canvas>
+    <div>Output</div>
+    <div class="note">
+        <span id="note">880</span>
+    </div>
+    <!--<canvas id="output" width=300 height=42></canvas>-->
+    <div id="detune">
+        <span id="detune_amt"></span>
+        <span id="flat">cents &#9837;</span>
+        <span id="sharp">cents &#9839;</span>
+    </div>
 </div>
 
 
@@ -164,63 +268,92 @@ div.vague { color: lightgrey; }
 </p>
 
 <!-- Location input -->
-<div align="center">
+<div>
 <table id="coordinates">
-<tr>
-    <td>Horizontal coordinate:</td>
-    <td>
-        <select id="xloc">
-            <option value="-1"></option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-      </select>
-    </td>
-</tr>
-<tr>
-    <td>Vertical coordinate:</td>
-    <td>
-        <select id="yloc">
-            <option value="-1"></option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-        </select>
-    </td>
-</tr>
+    <tr id="position">
+        <td>Position:</td>
+        <td>
+            <span id="xcoord">
+                <label for="xloc">x</label>
+                <select name="xloc" id="xloc">
+                    <option value="-1"></option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+              </select>
+          </span>
+            <span id="ycoord">
+                <label for="yloc">y</label>
+                <select name="yloc" id="yloc">
+                    <option value="-1"></option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+              </select>
+          </span>
+        </td>
+    </tr>
+    <tr>
+        <td>Learning Rate:</td>
+        <td>
+            <div class="widget">
+                <div class="nstSlider" id="learningRate"
+                        data-range_min="0" data-range_max="100"
+                        data-cur_min="50"     data-cur_max="0">
+                    <div class="bar"></div>
+                    <div class="leftGrip"></div>
+                </div>
+                <span class="leftLabel"></span>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>Interval:</td>
+        <td>
+            <div class="widget">
+                <div class="nstSlider" id="desiredInterval"
+                        data-range_min="0" data-range_max="3"
+                        data-cur_min="0"     data-cur_max="0">
+                    <div class="bar"></div>
+                    <div class="leftGrip"></div>
+                </div>
+                <span class="leftLabel"></span>
+            </div>
+    </tr>
+    <tr>
+        <td>Pitch:</td>
+        <td>
+            <div class="widget">
+                <div class="nstSlider" id="initialPitch"
+                        data-range_min="440" data-range_max="880"
+                        data-cur_min="660"     data-cur_max="0">
+                    <div class="bar"></div>
+                    <div class="leftGrip"></div>
+                </div>
+                <span class="leftLabel"></span>
+            </div>
+
+        </td>
+    </tr>
 </table>
 <p>
     <span id="positionMessage"></span>
 <p>
 </div>
 
-<!-- Learning parameters input -->
-<div>
-Learning rate: Slow <input type="range" id="learningRate" min="0" max="100" value="50" /> Fast
-</div>
-<div>
-Desired interval: 0 <input type="range" id="desiredInterval" min="0" max="3" value="0"/> 1/2 octave
-</div>
-
-<!-- Pitch control input -->
-<div>
-Manually set pitch: <input type="range" id="initialPitch" min="440" max="880" value="500" />
-</div>
-
-
-</div>
+</div> <!-- overall center -->
 
 </body>
 </html>

@@ -140,7 +140,7 @@ function gotStream(stream) {
     $("#positionMessage").html("");
     $("#startStopButton").css("background", "#B51E41");
     isPlaying = true;
-    
+
     // set initial pitch
     noteElem.innerText = document.getElementById( "initialPitch" ).value;
 }
@@ -255,7 +255,7 @@ function toggleLiveInput(makePaused) {
             }
             else {
                 // Show warning to select positions.
-                $("#positionMessage").html("Please specify your coordinates.");
+                $("#positionMessage").html("Please specify your position.");
                 $("#positionMessage").effect("shake");
             }
         } // end else
