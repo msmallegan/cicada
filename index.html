@@ -28,10 +28,23 @@
     // This function will be called after sending data to the server.
     var receivedInstructions = function (data, textStatus, jqHXR) {
         makePaused = data["pause"];
+        freq = data["freq"];
+
         // We don't do anything unless the desired state is different
         // from the current state.
         if (isPaused != makePaused) {
             toggleLiveInput(makePaused);
+        }
+
+        if (freq !== "user")
+        {
+            if (freq == "random") {
+                var f = Math.random() * (maxFreq - minFreq) + minFreq;
+            }
+            else {
+                var f = parseFloat(freq);
+            }
+            $("#initialPitch").nstSlider('set_position', f);
         }
     }
 

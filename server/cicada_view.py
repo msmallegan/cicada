@@ -65,16 +65,22 @@ def json_last_row():
     return headers, output
 
 def get_instructions():
-    statement = '''SELECT value from admin where key = "pause"'''
+    statement = '''SELECT * from admin'''
     db = sqlite3.connect(dbname)
     c = db.cursor()
     c.execute(statement)
-    pause = c.fetchone()[0]
-    if pause == "1" or pause == "true":
-        pause = True
-    else:
-        pause = False
-    x = {'pause': pause}
+    x = {}
+    for id, key, value in c:
+        if key == 'pause':
+            pause = value
+            if pause == "1" or pause == "true":
+                pause = True
+            else:
+                pause = False
+            x['pause'] = pause
+        else:
+            x[key] = value
+
     output = json.dumps(x)
     headers = [
         ('Content-Length', str(len(output))),
@@ -84,7 +90,7 @@ def get_instructions():
     return headers, output
 
 def set_instructions(instructions):
-    known_keys = ['pause']
+    known_keys = ['pause', 'freq']
 
     db = sqlite3.connect(dbname)
     db.row_factory = list_factory
@@ -93,11 +99,21 @@ def set_instructions(instructions):
     pause = '''UPDATE admin set value = "1" where key = "pause"'''
     unpause = '''UPDATE admin set value = "0" where key = "pause"'''
 
-    if instructions["pause"] == "1" or instructions["pause"] == "true":
-        c.execute(pause)
-    else:
-        c.execute(unpause)
-    db.commit()
+    for key in instructions:
+        if key not in known_keys:
+            continue
+
+        if key == 'pause':
+            if instructions["pause"] == "1" or instructions["pause"] == "true":
+                c.execute(pause)
+            else:
+                c.execute(unpause)
+            db.commit()
+
+        else:
+            stmnt = '''UPDATE admin SET value = ? WHERE key = ?'''
+            c.execute(stmnt, [instructions[key], key])
+            db.commit()
 
     output = ''
     headers = [
@@ -187,21 +203,42 @@ def application(environ, start_response):
         session = form['session']
     except KeyError:
         headers, output = last_30()
+        pass
     else:
         session = getvalue(session)
 
         if session == 'admin':
             # Send out instructions to clients.
+            instructions = {}
+
             try:
-                # hardcode "pause" for now
                 pause = form['pause']
             except KeyError:
-                headers, output = get_instructions()
+                pass
             else:
                 pause = getvalue(pause)
-                instructions = {'pause': pause}
-                set_instructions(instructions)
-                headers, output = get_instructions()
+                instructions['pause'] = pause
+
+            try:
+                freq = form['freq']
+            except KeyError:
+                pass
+            else:
+                freq = getvalue(freq)
+                if freq.lower() == 'random':
+                    freq = 'random'
+                elif freq.lower() == 'user':
+                    freq = 'user'
+                else:
+                    try:
+                        freq = int(freq)
+                    except ValueError:
+                        freq = None
+                if freq is not None:
+                    instructions['freq'] = freq
+
+            set_instructions(instructions)
+            headers, output = get_instructions()
         else:
             try:
                 row_id = form['row_id']

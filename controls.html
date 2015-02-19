@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Controls</title>
+    <!--<link href="../examples.css" rel="stylesheet" type="text/css">-->
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../../excanvas.min.js"></script><![endif]-->
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="nstSlider/jquery.nstSlider.min.css">
+
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="nstSlider/jquery.nstSlider.min.js"></script>
+
+    <script type="text/javascript">
+
+    $(function() {
+
+        var freq = 'user';
+
+        $('#pauseClientsCheckbox').change(function () {
+            var isChecked = $('#pauseClientsCheckbox').prop("checked");
+
+            var data = {
+                session: "admin",
+                pause: isChecked,
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "http://droova.com/python/cicada_view.py",
+                //data: JSON.stringify(data),
+                // Not using JSON in order to unify POST and GET handling.
+                // But since this will use $.param() to convert into GET
+                // params, we must pass a value for freq that is not null.
+                // This is because:
+                //    > $.param({a:null})
+                //    a=
+                data: data
+            });
+
+        });
+
+        function sendFreq() {
+            var data = {
+                session: "admin",
+                freq: freq,
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "http://droova.com/python/cicada_view.py",
+                data: data
+            });
+
+        }
+
+        $("#freqRadio").buttonset();
+        $("#freqRadio :radio").click(function(e) {
+            var elem = $(this);
+
+            if (elem.attr('id') == 'freqUser') {
+                freq = 'user';
+            }
+            else if (elem.attr('id') == 'freqRandom') {
+                freq = 'random';
+            }
+            else if (elem.attr('id') == 'freqSync') {
+                freq = $("#freqSyncValue").html();
+            }
+        });
+
+        $('#initialPitch').nstSlider({
+            "left_grip_selector": ".leftGrip",
+            "value_bar_selector": ".bar",
+            "value_changed_callback": function(cause, leftValue, rightValue) {
+                var $container = $(this).parent();
+
+                var minData = $(this).attr('data-range_min'),
+                    maxData = $(this).attr('data-range_max');
+
+                var color = 255 / (maxData - minData) * (leftValue - minData);
+                color = Math.floor(color);
+
+                var b = color,
+                    g = 127
+                    r = (color - 155) - 127;
+
+                $container.find('.leftLabel').text(leftValue);
+                $(this).find('.bar').css('background', 'rgb(' + [r, g, b].join(',') + ')');
+
+                // For some reason, this doesn't trigger the buttonset click.
+                $('[for=freqSync]').click();
+                freq = leftValue;
+
+            }
+        });
+
+
+        $('[for=freqUser]').click();
+        freq = "user";
+        setInterval(sendFreq, 1000);
+
+    });
+
+
+    </script>
+    <style>
+        .nstSlider {
+            background: lightgray;
+
+        }
+        .nstSlider .leftGrip {
+            background: darkgray;
+        }
+
+        .widget {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          width: 300px;
+          margin: 0 auto;
+          position: relative;
+          padding: 10px;
+          display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="content">
+
+        <div id="pause">
+            <input id="pauseClientsCheckbox" type="checkbox">
+            <span id="pauseClientsText">Pause Clients</span>
+        </div>
+
+        <br />
+
+        Frequency
+        <div id="freqRadio">
+            <input type="radio" id="freqUser" name="radio" checked="checked"><label for="freqUser">User Specified</label>
+            <input type="radio" id="freqRandom" name="radio"><label for="freqRandom">Randomized</label>
+            <input type="radio" id="freqSync" name="radio"><label for="freqSync">Synchronized</label>
+        </div>
+        <br />
+        <div class="widget">
+            <div class="nstSlider" id="initialPitch"
+                    data-range_min="440" data-range_max="880"
+                    data-cur_min="660"     data-cur_max="0">
+                <div class="bar"></div>
+                <div class="leftGrip"></div>
+            </div>
+            <div class="leftLabel" id="freqSyncValue"></div>
+        </div>
+
+    </div>
+
+
+</body>
+</html>

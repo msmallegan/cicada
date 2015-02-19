@@ -1,29 +1,29 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Collective Behavior Visualization</title>
-	<!--<link href="../examples.css" rel="stylesheet" type="text/css">-->
-	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../../excanvas.min.js"></script><![endif]-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Collective Behavior Visualization</title>
+    <!--<link href="../examples.css" rel="stylesheet" type="text/css">-->
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../../excanvas.min.js"></script><![endif]-->
 
-	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 
-	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 
-	<script language="javascript" type="text/javascript" src="../js/flot/jquery.js"></script>
-	<script language="javascript" type="text/javascript" src="../js/flot/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="../js/flot/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="../js/flot/jquery.flot.js"></script>
     <script language="javascript" type="text/javascript" src="../js/flot/jquery.flot.axislabels.js"></script>
     <script src="../js/deque.js"></script>
     <script src="../js/parseData.js"></script>
-	<script type="text/javascript">
+    <script type="text/javascript">
 
-	$(function() {
+    $(function() {
 
-		var data = [],
+        var data = [],
             maxPointsToPlot = 300;
 
-		function getData() {
+        function getData() {
 
             freqData.refreshPlot(data);
 
@@ -32,10 +32,10 @@
                 data.shift();
             }
 
-			// Zip the data values with x values
+            // Zip the data values with x values
             // to produce plottable lists
 
-			var dataList = [];
+            var dataList = [];
 
             if (data.length > 0){
                 // Loop over cicadas
@@ -51,105 +51,78 @@
             }
 
             return dataList;
-		}
+        }
 
-		// Set up the control widget
+        // Set up the control widget
 
-		var updateInterval = 500;
-		$("#updateInterval").val(updateInterval).change(function () {
-			var v = $(this).val();
-			if (v && !isNaN(+v)) {
-				updateInterval = +v;
-				if (updateInterval < 1) {
-					updateInterval = 1;
-				} else if (updateInterval > 2000) {
-					updateInterval = 2000;
-				}
-				$(this).val("" + updateInterval);
-			}
-		});
+        var updateInterval = 500;
+        $("#updateInterval").val(updateInterval).change(function () {
+            var v = $(this).val();
+            if (v && !isNaN(+v)) {
+                updateInterval = +v;
+                if (updateInterval < 1) {
+                    updateInterval = 1;
+                } else if (updateInterval > 2000) {
+                    updateInterval = 2000;
+                }
+                $(this).val("" + updateInterval);
+            }
+        });
 
-		var plot = $.plot("#placeholder", [ getData() ], {
-			series: {
-				shadowSize: 0	// Drawing is faster without shadows
-			},
-			yaxis: {
-				min: 440,
-				max: 880,
+        var plot = $.plot("#placeholder", [ getData() ], {
+            series: {
+                shadowSize: 0   // Drawing is faster without shadows
+            },
+            yaxis: {
+                min: 440,
+                max: 880,
                 axisLabel: 'Pitch (Hz)',
-			},
+            },
             xaxis: {
                 min: 0,
                 max: maxPointsToPlot,
                 axisLabel: 'Time',
                 ticks: [],
             },
-		});
+        });
 
-		function update() {
+        function update() {
 
             //console.log(getData());
-			plot.setData(getData());
+            plot.setData(getData());
 
-			// Since the axes don't change, we don't need to call plot.setupGrid()
+            // Since the axes don't change, we don't need to call plot.setupGrid()
             //plot.setupGrid();
 
-			plot.draw();
-			setTimeout(update, updateInterval);
-		}
+            plot.draw();
+            setTimeout(update, updateInterval);
+        }
 
-		update();
+        update();
 
-		// Add the Flot version string to the footer
+        // Add the Flot version string to the footer
 
-		$("#footer").prepend("Flot " + $.plot.version + " &ndash; ");
+        $("#footer").prepend("Flot " + $.plot.version + " &ndash; ");
 
-
-		// Implement global pause button.
-
-	    $('#pauseClientsCheckbox').change(function () {
-	        var isChecked = $('#pauseClientsCheckbox').prop("checked");
-
-		var data = {
-			session: "admin",
-			pause: isChecked,
-		};
-
-		$.ajax({
-			type: "POST",
-			url: "http://droova.com/python/cicada_view.py",
-			data: data,
-		});
-
-	    });
-
-
-
-
-	});
+    });
 
 
 
 
 
-	</script>
+    </script>
 </head>
 <body>
 
-	<div id="content">
+    <div id="content">
 
-		<div>
-			<div id="placeholder" style="width:600px;height:300px"></div>
-		</div>
+        <div>
+            <div id="placeholder" style="width:600px;height:300px"></div>
+        </div>
 
-		<p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+        <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
 
-		<div id="pause">
-			<input id="pauseClientsCheckbox" type="checkbox">
-			<span id="pauseClientsText">Pause Clients</span>
-		</div>
-
-	</div>
+    </div>
 
 
 </body>
