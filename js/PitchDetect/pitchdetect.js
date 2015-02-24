@@ -142,7 +142,9 @@ function gotStream(stream) {
     isPlaying = true;
 
     // set initial pitch
-    noteElem.innerText = document.getElementById( "initialPitch" ).value;
+    // initialPitch is now a slider....
+    noteElem.innerText = $("#initialPitch").nstSlider('get_current_min_value');
+    //noteElem.innerText = document.getElementById( "initialPitch" ).value;
 }
 
 /*
