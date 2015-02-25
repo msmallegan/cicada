@@ -42,6 +42,35 @@
 
         });
 
+        var keys = [
+            'showPositionControls',
+            'showLearningRateControls',
+            'showDesiredIntervalControls',
+            'showPitchControls'
+        ];
+        function createFunc(key) {
+            return function () {
+                var elemId = '#' + key + 'Checkbox';
+                var isChecked = $(elemId).prop("checked");
+
+                var data = {
+                    session: "admin"
+                };
+                data[key] = isChecked;
+
+                $.ajax({
+                    type: "POST",
+                    url: "http://droova.com/python/cicada_view.py",
+                    data: data
+                });
+            };
+        }
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            var elemId = '#' + key + 'Checkbox';
+            $(elemId).change(createFunc(key));
+        }
+
         function sendFreq() {
             var data = {
                 session: "admin",
@@ -136,6 +165,30 @@
             <input id="pauseClientsCheckbox" type="checkbox">
             <span id="pauseClientsText">Pause Clients</span>
         </div>
+
+        <div id="positionControls">
+            <input id="showPositionControlsCheckbox" type="checkbox">
+            <span id="showPositionControlsText">Show Position Controls</span>
+        </div>
+
+
+        <div id="learningRateControls">
+            <input id="showLearningRateControlsCheckbox" type="checkbox">
+            <span id="showLearningRateControlsText">Show Learning Rate Controls</span>
+        </div>
+
+
+        <div id="desiredIntervalControls">
+            <input id="showDesiredIntervalControlsCheckbox" type="checkbox">
+            <span id="showDesiredIntervalControlsText">Show Interval Controls</span>
+        </div>
+
+
+        <div id="pitchControls">
+            <input id="showPitchControlsCheckbox" type="checkbox">
+            <span id="showPitchControlsText">Show Pitch Controls</span>
+        </div>
+
 
         <br />
 

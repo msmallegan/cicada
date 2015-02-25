@@ -28,23 +28,23 @@ var s = function( sketch ) {
 
     var scaleArray = [60, 62, 64, 65, 67, 69, 71, 72];
     var note = 0;
-    
+
     var minPitchOut = 440; //880.;
     var maxPitchOut = 880; //1760.;
-    
+
     var maxPitchIn = 2000.;
-    
+
     var learningRate = 0.5;
-    
+
     var minDelay = 50; // in number of frames
     var maxDelay = 100;
-    
+
     var playNow = true;
     var lastPlayTime = 0;
     var timeDelay = 1;
 
     sketch.setup = function() {
-      
+
       //sketch.createCanvas(710, 200);
       osc = new p5.SinOsc();
 
@@ -58,9 +58,9 @@ var s = function( sketch ) {
     };
 
     sketch.draw = function() {
-      
+
       //sketch.background(20);
-      
+
       if (isPlaying) {
           // (*) Play myPitch
           if (playNow) {
@@ -73,15 +73,15 @@ var s = function( sketch ) {
 
             envelope.play(osc);
             note = (note + 1) % scaleArray.length;
-            
+
             // Send data to server
             sendData();
-            
+
             timeDelay = minDelay + Math.random()*(maxDelay-minDelay);
             lastPlayTime = sketch.frameCount;
             playNow = false;
           }
-          
+
           // (*) update myPitch between playing output notes
           if (sketch.frameCount > lastPlayTime + timeDelay) {
             var learningRate = document.getElementById( "learningRate" ).value / 100.;
@@ -94,6 +94,7 @@ var s = function( sketch ) {
                 var myPitchOld = Math.round( noteElem.innerHTML );
                 var myPitch = myPitchOld * Math.pow(mappedPitch/myPitchOld,learningRate);
                 // Use PitchDetect's 'noteElem' text to display current output
+                console.log(myPitch);
                 noteElem.innerHTML = Math.round( myPitch );
             }
             playNow = true;
