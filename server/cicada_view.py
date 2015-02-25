@@ -90,24 +90,26 @@ def get_instructions():
     return headers, output
 
 def set_instructions(instructions):
-    known_keys = ['pause', 'freq']
+    boolkeys = ['pause', 'showPositionControls', 'showLearningRateControls',
+                'showDesiredIntervalControls', 'showPitchControls']
+    known_keys = ['freq'] + boolkeys
 
     db = sqlite3.connect(dbname)
     db.row_factory = list_factory
     c = db.cursor()
 
-    pause = '''UPDATE admin set value = "1" where key = "pause"'''
-    unpause = '''UPDATE admin set value = "0" where key = "pause"'''
+    bool_true = '''UPDATE admin set value = "1" where key = "{0}"'''
+    bool_false = '''UPDATE admin set value = "0" where key = "{0}"'''
 
     for key in instructions:
         if key not in known_keys:
             continue
 
-        if key == 'pause':
-            if instructions["pause"] == "1" or instructions["pause"] == "true":
-                c.execute(pause)
+        if key in boolkeys:
+            if instructions[key] == "1" or instructions[key] == "true":
+                c.execute(bool_true.format(key))
             else:
-                c.execute(unpause)
+                c.execute(bool_false.format(key))
             db.commit()
 
         else:
@@ -211,13 +213,19 @@ def application(environ, start_response):
             # Send out instructions to clients.
             instructions = {}
 
-            try:
-                pause = form['pause']
-            except KeyError:
-                pass
-            else:
-                pause = getvalue(pause)
-                instructions['pause'] = pause
+            boolkeys = ['pause',
+                        'showPositionControls',
+                        'showLearningRateControls',
+                        'showDesiredIntervalControls',
+                        'showPitchControls']
+            for boolkey in boolkeys:
+                try:
+                    val = form[boolkey]
+                except KeyError:
+                    pass
+                else:
+                    val = getvalue(val)
+                    instructions[boolkey] = val
 
             try:
                 freq = form['freq']
