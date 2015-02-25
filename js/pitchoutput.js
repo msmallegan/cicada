@@ -70,6 +70,8 @@ var s = function( sketch ) {
             var myPitch = Math.round( noteElem.innerHTML );
             var freqValue = myPitch;
             osc.freq(freqValue);
+            
+            
 
             envelope.play(osc);
             note = (note + 1) % scaleArray.length;
@@ -84,8 +86,10 @@ var s = function( sketch ) {
 
           // (*) update myPitch between playing output notes
           if (sketch.frameCount > lastPlayTime + timeDelay) {
-            var learningRate = document.getElementById( "learningRate" ).value / 100.;
-            var desiredInterval = document.getElementById( "desiredInterval" ).value / 6.;
+            var learningRate = parseFloat( $("#learningRate").nstSlider('get_current_min_value') ) / 100.;
+            console.log(learningRate);
+            var desiredInterval = parseFloat( $("#desiredInterval").nstSlider('get_current_min_value') ) / 6.;
+            console.log(desiredInterval);
             var heardPitch = pitch;
             if (heardPitch < maxPitchIn) {
                 var desiredPitch = heardPitch * Math.pow(2,desiredInterval);
