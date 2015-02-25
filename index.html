@@ -25,10 +25,35 @@
 
     var isPaused = false;
 
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     // This function will be called after sending data to the server.
     var receivedInstructions = function (data, textStatus, jqHXR) {
         makePaused = data["pause"];
         freq = data["freq"];
+        console.log(data);
+
+        var showControls = [
+            'positionControls',
+            'learningRateControls',
+            'desiredIntervalControls',
+            'pitchControls',
+        ];
+        for (var i = 0; i < showControls.length; i++) {
+            var control = showControls[i];
+            var val = data["show" + capitalizeFirstLetter(control)];
+            console.log(control + ' ' + val);
+            if (typeof val !== "undefined") {
+                if (val == "0") {
+                    $("#" + control).hide();
+                }
+                else {
+                    $("#" + control).show();
+                }
+            }
+        }
 
         // We don't do anything unless the desired state is different
         // from the current state.
@@ -283,7 +308,7 @@ div.vague { color: lightgrey; }
 <!-- Location input -->
 <div>
 <table id="coordinates">
-    <tr id="position">
+    <tr id="positionControls">
         <td>Position:</td>
         <td>
             <span id="xcoord">
@@ -318,7 +343,7 @@ div.vague { color: lightgrey; }
           </span>
         </td>
     </tr>
-    <tr>
+    <tr id="learningRateControls">
         <td>Learning Rate:</td>
         <td>
             <div class="widget">
@@ -332,7 +357,7 @@ div.vague { color: lightgrey; }
             </div>
         </td>
     </tr>
-    <tr>
+    <tr id="desiredIntervalControls">
         <td>Interval:</td>
         <td>
             <div class="widget">
@@ -345,7 +370,7 @@ div.vague { color: lightgrey; }
                 <span class="leftLabel"></span>
             </div>
     </tr>
-    <tr>
+    <tr id="pitchControls">
         <td>Pitch:</td>
         <td>
             <div class="widget">
