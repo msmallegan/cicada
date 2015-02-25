@@ -49,7 +49,7 @@ var freqData = {};
     }
  
     // For use in plot/index.html
-    context.refreshPlot = function refreshPlot(data) {
+    context.refreshPlot = function refreshPlot(data,locations) {
         $.ajax({
             url: URL,
             dataType: "json",
@@ -64,11 +64,14 @@ var freqData = {};
                 if (means.length > 0) {
                     //console.log(means);
                     var d = [];
+                    var l = [];
                     // Loop over cicadas
                     for (var i=0; i < means.length; i++){
                         d.push(means[i].value);
+                        l.push([means[i].x,means[i].y]);
                     }
                     data.push(d);
+                    locations[0] = l;
                     //console.log(d);
                 }
             },
