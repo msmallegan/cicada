@@ -7,7 +7,7 @@ var freqData = {};
 
     var session = 'hi';
     var capacity = 1; //5;
-    var URL = "http://droova.com/python/cicada_view.py"
+    var URL = "http://droova.com/python/cicada_view.py";
 
     // Fetch the last row id, synchronously.
     var last_row;
@@ -17,7 +17,7 @@ var freqData = {};
         async: false,
         data: {session: session, row_id: "last"},
         success: function(output) {
-            last_row = output['last_row']
+            last_row = output['last_row'];
         }
     });
 
@@ -34,22 +34,20 @@ var freqData = {};
                     last_row = x[0][0];
                 }
                 context.updateData(x);
-                var means = context.calculateMeans(x, width, height, xMax, yMax);
-                if (means.length > 0) {
-                    console.log(means[0].value);
-                }
+                var means = context.calculateMeans(width, height, xMax, yMax);
                 heatmap.setData({
                     min: minFreq,
                     max: maxFreq,
                     data: means
                 });
                 heatmap.repaint();
-            },
+            }
         });
-    }
- 
+    };
+
     // For use in plot/index.html
-    context.refreshPlot = function refreshPlot(data,locations) {
+
+    context.refreshPlot = function refreshPlot(data, locations) {
         $.ajax({
             url: URL,
             dataType: "json",
@@ -60,7 +58,7 @@ var freqData = {};
                     last_row = x[0][0];
                 }
                 context.updateData(x);
-                var means = context.calculateMeans(x,1,1,1,1);
+                var means = context.calculateMeans(1,1,1,1);
                 if (means.length > 0) {
                     //console.log(means);
                     var d = [];
@@ -68,15 +66,15 @@ var freqData = {};
                     // Loop over cicadas
                     for (var i=0; i < means.length; i++){
                         d.push(means[i].value);
-                        l.push([means[i].x,means[i].y]);
+                        l.push([means[i].x, means[i].y]);
                     }
                     data.push(d);
                     locations[0] = l;
                     //console.log(d);
                 }
-            },
+            }
         });
-    }
+    };
 
     context.updateData = function (data) {
 
@@ -102,7 +100,7 @@ var freqData = {};
             que.push(freq)
         }
 
-    }
+    };
 
     context.calculateMean = function (data) {
         var dataLength = data._length; // this is a deque object!
@@ -117,7 +115,7 @@ var freqData = {};
         return mean / count;
     };
 
-    context.calculateMeans = function (data, width, height, xMax, yMax) {
+    context.calculateMeans = function (width, height, xMax, yMax) {
 
         // id, session, location, date sent, date received, frequency_in, frequency_out
         var queues = context.queues;

@@ -8,6 +8,8 @@
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 
+    <script src="../js/colors.js"></script>
+
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 
@@ -26,7 +28,7 @@
 
         function getData() {
 
-            freqData.refreshPlot(data,locations);
+            freqData.refreshPlot(data, locations);
 
             // limit the number of points plotted
             while (data.length > maxPointsToPlot) {
@@ -38,7 +40,7 @@
 
             var dataList = [];
 
-            if (data.length > 0){
+            if (data.length > 0) {
                 // Loop over cicadas
                 var numActiveCicadas = data[data.length-1].length;
                 for (var j = 0; j < numActiveCicadas; ++j) {
@@ -49,20 +51,20 @@
                     }
                     // Get location to set color
                     var x = locations[0][j][0];
+
+                    // This is because parseData.js:calculateMeans is preparing
+                    // the data for display on an HTML canvas. It does:
+                    //      height - que.location[1] * yScale,
+                    // where we use height=1, yScale=1. So we need to invert
+                    // and add one back to it.
+                    //
                     var y = -locations[0][j][1] + 1;
                     dataList.push({data: singleCicadaData,
                                    color: locationToColor(x,y)});
                 }
             }
 
-            console.log(dataList);
             return dataList;
-        }
-
-        function locationToColor(x,y) {
-
-            return x+10*y;
-
         }
 
         // Set up the control widget
@@ -107,10 +109,10 @@
             //plot.setupGrid();
 
             plot.draw();
-            setTimeout(update, updateInterval);
         }
 
         update();
+        setInterval(update, updateInterval);
 
         // Add the Flot version string to the footer
         //$("#footer").prepend("Flot " + $.plot.version + " &ndash; ");

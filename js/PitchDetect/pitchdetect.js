@@ -434,7 +434,10 @@ function updatePitch( time ) {
         waveCanvas.lineTo(512,256);
         waveCanvas.stroke();
         */
+
         waveCanvas.strokeStyle = "black";
+        waveCanvas.strokeStyle = locationToColor(xylocation[0], xylocation[1]);
+        waveCanvas.lineWidth = 3;
         waveCanvas.beginPath();
         waveCanvas.moveTo(0,ymax/2+buf[0]);
         for (var i=1;i<xmax;i++) {

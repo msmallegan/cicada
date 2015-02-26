@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 <link rel="stylesheet" href="nstSlider/jquery.nstSlider.min.css">
 
+<script src="js/colors.js"></script>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -25,6 +26,9 @@
 
     var isPaused = false;
 
+    var xylocation = [-1, -1];
+    var group = 0;
+
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
@@ -33,7 +37,6 @@
     var receivedInstructions = function (data, textStatus, jqHXR) {
         makePaused = data["pause"];
         freq = data["freq"];
-        console.log(data);
 
         var showControls = [
             'positionControls',
@@ -44,7 +47,6 @@
         for (var i = 0; i < showControls.length; i++) {
             var control = showControls[i];
             var val = data["show" + capitalizeFirstLetter(control)];
-            console.log(control + ' ' + val);
             if (typeof val !== "undefined") {
                 if (val == "0") {
                     $("#" + control).hide();
@@ -92,9 +94,7 @@
 
         // Need to grab these from an HTML element, eventually.
         var session = 'hi';
-        var location = [parseInt(document.getElementById( "xloc" ).value),
-                        parseInt(document.getElementById( "yloc" ).value)];
-        var location = JSON.stringify(location);
+        var loc = JSON.stringify(xylocation);
 
         var dt_sent = moment.utc();
         // We use this format, rather than JSON.stringify(dt_sent) because this
@@ -109,7 +109,7 @@
 
         var data = {
             session: session,
-            location: location,
+            location: loc,
             dt_sent: dt_sent,
             frequency_in: frequency_in,
             frequency_out: frequency_out
@@ -130,6 +130,19 @@
     // (The following runs every 5 seconds)
     $(window).load(function () {
         setInterval(getInstructions, 5000); // 5 seconds
+
+        $("#xloc").change(function () {
+            $( "#xloc option:selected" ).each(function() {
+              xylocation[0] = parseInt($( this ).attr("value"));
+            });
+        }).change();
+
+        $("#yloc").change(function () {
+            $( "#yloc option:selected" ).each(function() {
+              xylocation[1] = parseInt($( this ).attr("value"));
+            });
+        }).change();
+
 
         $('#initialPitch').nstSlider({
             "left_grip_selector": ".leftGrip",
@@ -314,7 +327,7 @@ div.vague { color: lightgrey; }
             <span id="xcoord">
                 <label for="xloc">x</label>
                 <select name="xloc" id="xloc">
-                    <option value="-1"></option>
+                    <option value="-1" selected></option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -329,7 +342,7 @@ div.vague { color: lightgrey; }
             <span id="ycoord">
                 <label for="yloc">y</label>
                 <select name="yloc" id="yloc">
-                    <option value="-1"></option>
+                    <option value="-1" selected></option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
