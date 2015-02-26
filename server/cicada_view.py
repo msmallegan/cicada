@@ -78,6 +78,8 @@ def get_instructions():
             else:
                 pause = False
             x['pause'] = pause
+        elif key == 'freq':
+            x[key] = json.loads(value)
         else:
             x[key] = value
 
@@ -114,7 +116,7 @@ def set_instructions(instructions):
 
         else:
             stmnt = '''UPDATE admin SET value = ? WHERE key = ?'''
-            c.execute(stmnt, [instructions[key], key])
+            c.execute(stmnt, [json.dumps(instructions[key]), key])
             db.commit()
 
     output = ''
@@ -239,9 +241,10 @@ def application(environ, start_response):
                     freq = 'user'
                 else:
                     try:
-                        freq = int(freq)
+                        freq = json.loads(freq)
                     except ValueError:
                         freq = None
+
                 if freq is not None:
                     instructions['freq'] = freq
 

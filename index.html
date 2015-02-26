@@ -69,7 +69,7 @@
                 var f = Math.random() * (maxFreq - minFreq) + minFreq;
             }
             else {
-                var f = parseFloat(freq);
+                var f = parseFloat(freq[group]);
             }
             $("#initialPitch").nstSlider('set_position', f);
         }
@@ -134,12 +134,14 @@
         $("#xloc").change(function () {
             $( "#xloc option:selected" ).each(function() {
               xylocation[0] = parseInt($( this ).attr("value"));
+              group = getGroup();
             });
         }).change();
 
         $("#yloc").change(function () {
             $( "#yloc option:selected" ).each(function() {
               xylocation[1] = parseInt($( this ).attr("value"));
+              group = getGroup();
             });
         }).change();
 

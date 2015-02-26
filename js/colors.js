@@ -11,6 +11,10 @@ function locationToGroup(x, y) {
     return (y + 9 * x ) % 2;
 }
 
+function getGroup() {
+    return (xylocation[1] + 9 * xylocation[0]) % 2;
+}
+
 function locationToColor(x, y) {
     // 9 is the multiplier since we have 9 columns (x=1..9)
     var idx = (y + 9 * x) % d3colors.length;

@@ -18,6 +18,8 @@
     $(function() {
 
         var freq = 'user';
+        var freqOdd = 660;
+        var freeEven = 660;
 
         $('#pauseClientsCheckbox').change(function () {
             var isChecked = $('#pauseClientsCheckbox').prop("checked");
@@ -72,10 +74,18 @@
         }
 
         function sendFreq() {
+            var selection = $("#freqRadio :radio:checked").attr('id');
+            if (selection == "freqSync")
+            {
+                freq = [freqOdd, freqEven];
+                freq = JSON.stringify(freq);
+            }
+
             var data = {
                 session: "admin",
                 freq: freq,
             };
+
 
             $.ajax({
                 type: "POST",
@@ -91,16 +101,18 @@
 
             if (elem.attr('id') == 'freqUser') {
                 freq = 'user';
+                $("#syncPitch").hide();
             }
             else if (elem.attr('id') == 'freqRandom') {
                 freq = 'random';
+                $("#syncPitch").hide();
             }
             else if (elem.attr('id') == 'freqSync') {
-                freq = $("#freqSyncValue").html();
+                $("#syncPitch").show();
             }
         });
 
-        $('#initialPitch').nstSlider({
+        $('#initialPitchOdd').nstSlider({
             "left_grip_selector": ".leftGrip",
             "value_bar_selector": ".bar",
             "value_changed_callback": function(cause, leftValue, rightValue) {
@@ -116,19 +128,51 @@
                     g = 127
                     r = (color - 155) - 127;
 
-                $container.find('.leftLabel').text(leftValue);
+                //$container.find('.leftLabel').text(leftValue);
+                $("#freqSyncOddValue").text(leftValue);
                 $(this).find('.bar').css('background', 'rgb(' + [r, g, b].join(',') + ')');
 
                 // For some reason, this doesn't trigger the buttonset click.
                 $('[for=freqSync]').click();
-                freq = leftValue;
+
+
+                //freq = leftValue;
+                freqOdd = leftValue;
+
 
             }
         });
 
+        $('#initialPitchEven').nstSlider({
+            "left_grip_selector": ".leftGrip",
+            "value_bar_selector": ".bar",
+            "value_changed_callback": function(cause, leftValue, rightValue) {
+                var $container = $(this).parent();
+
+                var minData = $(this).attr('data-range_min'),
+                    maxData = $(this).attr('data-range_max');
+
+                var color = 255 / (maxData - minData) * (leftValue - minData);
+                color = Math.floor(color);
+
+                var b = color,
+                    g = 127
+                    r = (color - 155) - 127;
+
+                $("#freqSyncEvenValue").text(leftValue);
+                $(this).find('.bar').css('background', 'rgb(' + [r, g, b].join(',') + ')');
+
+                // For some reason, this doesn't trigger the buttonset click.
+                $('[for=freqSync]').click();
+                freqEven = leftValue;
+
+            }
+        });
 
         $('[for=freqUser]').click();
+
         freq = "user";
+        $("#syncPitch").hide();
         setInterval(sendFreq, 1000);
 
     });
@@ -199,21 +243,34 @@
 
         <br />
 
-        Frequency
+        <h3>Frequency</h3>
         <div id="freqRadio">
-            <input type="radio" id="freqUser" name="radio" checked="checked"><label for="freqUser">User Specified</label>
+            <input type="radio" id="freqUser" name="radio" checked="checked"><label for="freqUser">User Controlled</label>
             <input type="radio" id="freqRandom" name="radio"><label for="freqRandom">Randomized</label>
             <input type="radio" id="freqSync" name="radio"><label for="freqSync">Synchronized</label>
         </div>
         <br />
-        <div class="widget">
-            <div class="nstSlider" id="initialPitch"
+        <div id="syncPitch" class="widget">
+            <div class="nstSlider" id="initialPitchOdd"
                     data-range_min="440" data-range_max="880"
                     data-cur_min="660"     data-cur_max="0">
                 <div class="bar"></div>
                 <div class="leftGrip"></div>
             </div>
-            <div class="leftLabel" id="freqSyncValue"></div>
+            <span>Odd: </span>
+            <span class="leftLabel" id="freqSyncOddValue"></span>
+
+            <p>
+
+            <div class="nstSlider" id="initialPitchEven"
+                    data-range_min="440" data-range_max="880"
+                    data-cur_min="660"     data-cur_max="0">
+                <div class="bar"></div>
+                <div class="leftGrip"></div>
+            </div>
+            <span>Even: </span>
+            <span class="leftLabel" id="freqSyncEvenValue"></span>
+
         </div>
 
     </div>
