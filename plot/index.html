@@ -27,7 +27,7 @@
         function getData() {
 
             freqData.refreshPlot(data,locations);
-      
+
             // limit the number of points plotted
             while (data.length > maxPointsToPlot) {
                 data.shift();
@@ -58,11 +58,11 @@
             console.log(dataList);
             return dataList;
         }
-      
+
         function locationToColor(x,y) {
-      
+
             return x+10*y;
-      
+
         }
 
         // Set up the control widget
@@ -113,8 +113,8 @@
         update();
 
         // Add the Flot version string to the footer
-
-        $("#footer").prepend("Flot " + $.plot.version + " &ndash; ");
+        //$("#footer").prepend("Flot " + $.plot.version + " &ndash; ");
+        $("#updateIntervalControl").hide();
 
     });
 
@@ -132,7 +132,9 @@
             <div id="placeholder" style="width:600px;height:300px"></div>
         </div>
 
-        <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+        <div id="updateIntervalControl">
+            <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+        </div>
 
     </div>
 
