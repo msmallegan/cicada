@@ -27,7 +27,7 @@
 
       var minFreq = 440; //880;
       var maxFreq = 880; //1760;
-      
+
       var xMax = 10;
       var yMax = xMax;
 
@@ -37,16 +37,17 @@
         var size = getCanvasSize();
         var width = size;
         var height = size;
-    
+
         // create heatmap instance
         var heatmap = h337.create({
           container: document.getElementById('heatmapContainer'),
           // a waterdrop gradient ;-)
-          gradient: { 0: 'lightyellow', 0.1:'gold', 0.75: 'orangered', 1:'crimson'},
+          gradient: {0: '#3288bd', 0.2: '#99d594', 0.4:'#e6f598',
+                     0.6: '#fee08b', .8:'#fc8d59', 1: '#d53e4f'},
           minOpacity: .9,
           maxOpacity: .9,
-          radius: size/xMax/1.5,
-          blur: 0.1
+          radius: size/xMax/2,
+          blur: 0
         });
 
         var update = function() {
@@ -56,7 +57,7 @@
         update();
         setInterval(update, 1000);
       });
-      
+
       function getCanvasSize() {
         // boundaries for data generation
         // for now assumes square grid
@@ -65,9 +66,9 @@
         var size = Math.min(width,height)
         return size;
       }
-      
+
     </script>
-    
+
     <canvas id="gridCanvas"></canvas>
     <script>
         // draw grid
@@ -79,12 +80,12 @@
         var context = canvas.getContext("2d");
         var gridOpts = {
             distance : size/xMax,
-            lineWidth : 0.1,
+            lineWidth : 0.2,
             gridColor : "gray",
             caption: false
         };
         new Grid(gridOpts).draw(context);
     </script>
-    
+
   </body>
 </html>
