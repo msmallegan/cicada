@@ -60,7 +60,7 @@
                     //
                     var y = -locations[0][j][1] + 1;
                     dataList.push({data: singleCicadaData,
-                                   color: locationToColor(x,y)});
+                                   color: colorFunc(x,y)});
                 }
             }
 
@@ -113,6 +113,31 @@
 
         update();
         setInterval(update, updateInterval);
+
+
+        var receivedInstructions = function (data, textStatus, jqHXR) {
+            var twoGroups = data["twoGroupsControls"];
+            if (twoGroups == 1) {
+                colorFunc = locationToBinaryColor;
+            }
+            else {
+                colorFunc = locationToColor;
+            }
+        };
+
+        var getInstructions = function () {
+            var data = {
+                session: "admin" // Special session means send out instructions.
+            }
+            $.ajax({
+                type: "POST",
+                url: "http://droova.com/python/cicada_view.py",
+                data: data,
+                dataType: 'json',
+                success: receivedInstructions,
+            });
+        };
+        setInterval(getInstructions, 5000);
 
         // Add the Flot version string to the footer
         //$("#footer").prepend("Flot " + $.plot.version + " &ndash; ");

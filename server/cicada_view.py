@@ -93,7 +93,8 @@ def get_instructions():
 
 def set_instructions(instructions):
     boolkeys = ['pause', 'showPositionControls', 'showLearningRateControls',
-                'showDesiredIntervalControls', 'showPitchControls']
+                'showDesiredIntervalControls', 'showPitchControls',
+                'twoGroupsControls']
     known_keys = ['freq'] + boolkeys
 
     db = sqlite3.connect(dbname)
@@ -219,7 +220,8 @@ def application(environ, start_response):
                         'showPositionControls',
                         'showLearningRateControls',
                         'showDesiredIntervalControls',
-                        'showPitchControls']
+                        'showPitchControls',
+                        'twoGroupsControls']
             for boolkey in boolkeys:
                 try:
                     val = form[boolkey]

@@ -436,7 +436,7 @@ function updatePitch( time ) {
         */
 
         waveCanvas.strokeStyle = "black";
-        waveCanvas.strokeStyle = locationToColor(xylocation[0], xylocation[1]);
+        waveCanvas.strokeStyle = colorFunc(xylocation[0], xylocation[1]);
         waveCanvas.lineWidth = 3;
         waveCanvas.beginPath();
         waveCanvas.moveTo(0,ymax/2+buf[0]);

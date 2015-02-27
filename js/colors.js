@@ -20,3 +20,15 @@ function locationToColor(x, y) {
     var idx = (y + 9 * x) % d3colors.length;
     return d3colors[idx];
 }
+
+function locationToBinaryColor(x,y) {
+    var groupID = locationToGroup(x, y);
+    if (groupID == 0) {
+        return d3colors[0];
+    }
+    else {
+        return d3colors[6];
+    }
+}
+
+var colorFunc = locationToColor;

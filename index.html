@@ -38,6 +38,14 @@
         makePaused = data["pause"];
         freq = data["freq"];
 
+        var twoGroups = data["twoGroupsControls"];
+        if (twoGroups == 1) {
+            colorFunc = locationToBinaryColor;
+        }
+        else {
+            colorFunc = locationToColor;
+        }
+
         var showControls = [
             'positionControls',
             'learningRateControls',
